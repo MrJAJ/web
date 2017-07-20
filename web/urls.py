@@ -20,5 +20,16 @@ from myweb import views as myview
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
     url(r'^$', myview.index, name='index'),
-    url(r'^element', myview.element, name='element'),
+    url(r'^full', myview.full, name='full'),
+    url(r'^jieindex', myview.jieindex, name='jieindex'),
+    url(r'^jiedetail', myview.jiedetail, name='jiedetail'),
+    url(r'^jieadd', myview.jieadd, name='jieadd'),
+    url(r'^userindex', myview.userindex, name='userindex'),
+    url(r'^userhome', myview.userhome, name='userhome'),
+    url(r'^userset', myview.userset, name='userset'),
+    url(r'^usermessage', myview.usermessage, name='usermessage'),
+    url(r'^useractivate', myview.useractivate, name='useractivate'),
+    url(r'^userforget', myview.userforget, name='userforget'),
+    url(r'^userlogin', myview.userlogin, name='userlogin'),
+    url(r'^userreg', myview.userreg, name='userreg'),
 ]
