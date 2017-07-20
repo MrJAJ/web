@@ -1,6 +1,13 @@
 from django.shortcuts import render
 
 # Create your views here.
+def temp(request):
+    return render(request, 'website/temp.html')
+def tips(request):
+    return render(request, 'website/tips.html')
+def h404(request):
+    return render(request, 'website/404.html')
+
 def index(request):
     return render(request, 'website/index.html')
 def full(request):
