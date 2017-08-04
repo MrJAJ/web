@@ -6,22 +6,26 @@
 {% block content%}
 
 <div class="fly-home" style="background-image: url();">
-  <img src="http://tp4.sinaimg.cn/1345566427/180/5730976522/0" alt="{{info.username}}">
+  <img src="/{{ webuser.avatar }}" alt="{{request.user.username}}">
   <h1>
-    贤心
-    <i class="iconfont icon-nan"></i>
-    <!-- <i class="iconfont icon-nv"></i> -->
-
-    <!-- <span style="color:#c00;">（超级码农）</span>
+    {{ request.user.username }}
+      {% if webuser.sex == 0 %}
+        <i class="iconfont icon-nan"></i>
+      {% else %}
+        <i class="iconfont icon-nv"></i>
+        {% endif %}
+  <!--
+    <span style="color:#c00;">（超级码农）</span>
     <span style="color:#5FB878;">（活雷锋）</span>
-    <span>（该号已被封）</span> -->
+    <span>（该号已被封）</span>
+    -->
   </h1>
   <p class="fly-home-info">
-    <i class="iconfont icon-zuichun" title="飞吻"></i><span style="color: #FF7200;">67206飞吻</span>
-    <i class="iconfont icon-shijian"></i><span>2015-06-17 加入</span>
-    <i class="iconfont icon-chengshi"></i><span>来自杭州</span>
+    <i class="iconfont icon-zuichun" title="积分"></i><span style="color: #FF7200;">{{ webuser.score }}</span>
+    <i class="iconfont icon-shijian"></i><span>{{ request.user.date_joined }}</span>
+    <i class="iconfont icon-chengshi"></i><span>来自{{ webuser.city }}</span>
   </p>
-  <p class="fly-home-sign">（人生仿若一场修行）</p>
+  <p class="fly-home-sign">{{ webuser.desc }}</p>
 </div>
 
 <div class="main fly-home-main">

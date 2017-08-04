@@ -49,9 +49,12 @@
         <ul class="layui-form">
           <li class="layui-form-li">
             <label for="activate">您的邮箱：</label>
-            <span class="layui-form-text">xx@xx.com
-              <!-- <em style="color:#999;">（已成功激活）</em> -->
+            <span class="layui-form-text">{{ user.email }}
+                {% if user.is_active %}
+               <em style="color:#999;">（已成功激活）</em>
+                {% else %}
               <em style="color:#c00;">（尚未激活）</em>
+                {% endif %}
             </span>
           </li>
           <li class="layui-form-li" style="margin-top: 20px; line-height: 26px;">

@@ -152,25 +152,28 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
     });
   }
 
-  //上传图片
+  //上传图片   multipart/form-data
   if($('.upload-img')[0]){
     layui.use('upload', function(upload){
       var avatarAdd = $('.avatar-add');
-      layui.upload({
-        elem: '.upload-img input'
+    layui.upload({
+        elem: '.upload-img  #LAY-file'
         ,method: 'post'
         ,url: '/user/upload/'
         ,before: function(){
+          console.log("发送前");
           avatarAdd.find('.loading').show();
         }
         ,success: function(res){
-          if(res.status == 0){
-            $.post('/user/set/', {
+          console.log(res);
+          if(res.status === 0){
+            $.post('userset', {
               avatar: res.url
             }, function(res){
               location.reload();
             });
           } else {
+
             layer.msg(res.msg, {icon: 5});
           }
           avatarAdd.find('.loading').hide();
@@ -181,6 +184,7 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
       });
     });
   }
+
 
   //提交成功后刷新
   fly.form['set-mine'] = function(data, required){

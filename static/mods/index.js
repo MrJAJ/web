@@ -43,6 +43,7 @@ layui.define(['layer', 'laytpl', 'form', 'upload', 'util'], function(exports){
       return $.ajax({
         type: options.type || 'post',
         dataType: options.dataType || 'json',
+          headers: {'Content-Type': 'application/json',"X-CSRFToken":csrftoken},
         data: data,
         url: url,
         success: function(res){
@@ -52,7 +53,7 @@ layui.define(['layer', 'laytpl', 'form', 'upload', 'util'], function(exports){
             layer.msg(res.msg||res.code, {shift: 6});
           }
         }, error: function(e){
-          options.error || layer.msg('请求异常，请重试', {shift: 6});
+          options.error || layer.msg('请求异常，请重试hahahahah', {shift: 6});
         }
       });
     }
@@ -120,9 +121,8 @@ layui.define(['layer', 'laytpl', 'form', 'upload', 'util'], function(exports){
             ,'</ul>'].join('')
             ,success: function(layero, index){
               var image =  layero.find('input[name="image"]');
-
               layui.upload({
-                url: '/api/upload/'
+                url: '/user/upload/'
                 ,elem: '#fly-jie-upload .layui-upload-file'
                 ,success: function(res){
                   if(res.status == 0){
@@ -196,7 +196,7 @@ layui.define(['layer', 'laytpl', 'form', 'upload', 'util'], function(exports){
           layer.open({
             type: 1
             ,title: '预览'
-            ,area: ['100%', '100%']
+            ,area: ['60%', '60%']
             ,scrollbar: false
             ,content: '<div class="detail-body" style="margin:20px;">'+ content +'</div>'
           });

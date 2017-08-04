@@ -20,10 +20,9 @@ from myweb import views as myview
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
     url(r'^temp', myview.temp, name='temp'),
-
     url(r'^$', myview.index, name='index'),
-url(r'^tips', myview.tips, name='tips'),
-url(r'^404', myview.h404, name='404'),
+    url(r'^tips', myview.tips, name='tips'),
+    url(r'^404', myview.h404, name='404'),
     url(r'^full', myview.full, name='full'),
     url(r'^jieindex', myview.jieindex, name='jieindex'),
     url(r'^jiedetail', myview.jiedetail, name='jiedetail'),
@@ -36,4 +35,7 @@ url(r'^404', myview.h404, name='404'),
     url(r'^userforget', myview.userforget, name='userforget'),
     url(r'^userlogin', myview.userlogin, name='userlogin'),
     url(r'^userreg', myview.userreg, name='userreg'),
+    url(r'^userlogout', myview.userlogout, name='userlogout'),
+    url(r'^user/upload', myview.upload_avatar, name='upload_avatar'),
+
 ]
