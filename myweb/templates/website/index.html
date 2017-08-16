@@ -10,10 +10,10 @@
     <div class="content">
       <div class="fly-tab fly-tab-index">
         <span>
-          <a href="{% url 'jieindex' %}">全部</a>
-          <a href="{% url 'jieindex' %}">未结帖</a>
-          <a href="{% url 'jieindex' %}">已采纳</a>
-          <a href="{% url 'jieindex' %}">精帖</a>
+          <a href="{% url 'jieindex' 1%}">全部</a>
+          <a href="">未结帖</a>
+          <a href="">已采纳</a>
+          <a href="">精帖</a>
           <a href="{% url 'userindex' %}">我的帖</a>
         </span>
         <form action="http://cn.bing.com/search" class="fly-search">
@@ -26,16 +26,16 @@
 
       <ul class="fly-list fly-list-top">
         <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
+          <a href="{% url 'userhome' webuser.user.id %}" class="fly-list-avatar">
             <img src="http://tp4.sinaimg.cn/1345566427/180/5730976522/0" alt="">
           </a>
           <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">基于 layui的轻量级问答社区页面模版 V2版本</a>
+            <a href="{% url 'jiedetail' 0%}">基于 layui的轻量级问答社区页面模版 V2版本</a>
             <span class="fly-tip-stick">置顶</span>
             <span class="fly-tip-jing">精帖</span>
           </h2>
           <p>
-            <span><a href="{% url 'userhome' %}">贤心</a></span>
+            <span><a href="{% url 'userhome' webuser.user.id%}">贤心</a></span>
             <span>刚刚</span>
             <span>layui框架综合</span>
             <span class="fly-list-hint">
@@ -45,15 +45,15 @@
           </p>
         </li>
         <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
+          <a href="{% url 'userhome' webuser.user.id %}" class="fly-list-avatar">
             <img src="{% static 'images/avatar/00.jpg' %}" alt="">
           </a>
           <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">基于 layui的轻量级问答社区页面模版 V2版本</a>
+            <a href="{% url 'jiedetail' 0 %}">基于 layui的轻量级问答社区页面模版 V2版本</a>
             <span class="fly-tip-stick">置顶</span>
           </h2>
           <p>
-            <span><a href="{% url 'userhome' %}">纸飞机</a></span>
+            <span><a href="{% url 'userhome' webuser.user.id %}">纸飞机</a></span>
             <span>30分钟前</span>
             <span>技术闲谈</span>
             <span class="fly-list-hint">
@@ -65,266 +65,31 @@
       </ul>
 
       <ul class="fly-list">
+           {% for article in articles %}
         <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
+          <a href="{% url 'userhome' article.creator.user.id %}" class="fly-list-avatar">
+            <img src="/{{ article.creator.avatar }}" alt="">
           </a>
           <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
+            <a href="{% url 'jiedetail' article.aid %}">{{ article.title }}</a>
           </h2>
           <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
+            <span><a href="{% url 'userhome' article.creator.user.id%}">{{ article.creator.user.username }}</a></span>
+            <span>{{ article.pubTime }}</span>
+            <span>{{ article.Article_Category.values_list.0.1 }}</span>
             <span class="fly-list-hint">
               <i class="iconfont" title="回答">&#xe60c;</i> 8
               <i class="iconfont" title="人气">&#xe60b;</i> 106
             </span>
           </p>
         </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-             <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' %}" class="fly-list-avatar">
-             <img src="{% static 'images/avatar/default.png'%}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' %}">关于layui 引用其他插件，扩展模块 的用法</a>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' %}">用户昵称</a></span>
-            <span>1小时前</span>
-            <span>layui框架综合</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 8
-              <i class="iconfont" title="人气">&#xe60b;</i> 106
-            </span>
-          </p>
-        </li>
+          {% endfor %}
+
       </ul>
 
       <div style="text-align: center">
         <div class="laypage-main">
-          <a href="{% url 'jieindex' %}" class="laypage-next">更多求解</a>
+          <a href="{% url 'jieindex' 1%}" class="laypage-next">更多求解</a>
         </div>
       </div>
 
@@ -336,14 +101,14 @@
       <h3 class="fly-panel-title">近一月回答榜 - TOP 12</h3>
       <dl>
         <dd>
-          <a href="{% url 'userhome' %}">
+          <a href="{% url 'userhome' webuser.user.id%}">
             <img src="{% static 'images/avatar/default.png'%}" alt="">
             <cite>纸飞机</cite>
             <i>159次回答</i>
           </a>
         </dd>
         <dd>
-          <a href="{% url 'userhome' %}">
+          <a href="{% url 'userhome' webuser.user.id%}">
              <img src="{% static 'images/avatar/default.png'%}" alt="">
             <cite>纸飞机</cite>
             <i>159次回答</i>
@@ -355,73 +120,27 @@
     <dl class="fly-panel fly-list-one">
       <dt class="fly-panel-title">最近热帖</dt>
       <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局（基本结构）</a>
+        <a href="{% url 'jiedetail' 0 %}">使用 layui 秒搭后台大布局（基本结构）</a>
         <span><i class="iconfont">&#xe60b;</i> 6087</span>
       </dd>
       <dd>
-        <a href="{% url 'jiedetail' %}">Java实现LayIM后端的核心代码</a>
+        <a href="{% url 'jiedetail' 0 %}">Java实现LayIM后端的核心代码</a>
         <span><i class="iconfont">&#xe60b;</i> 767</span>
       </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局（基本结构）</a>
-        <span><i class="iconfont">&#xe60b;</i> 6087</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">Java实现LayIM后端的核心代码</a>
-        <span><i class="iconfont">&#xe60b;</i> 767</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局（基本结构）</a>
-        <span><i class="iconfont">&#xe60b;</i> 6087</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">Java实现LayIM后端的核心代码</a>
-        <span><i class="iconfont">&#xe60b;</i> 767</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局（基本结构）</a>
-        <span><i class="iconfont">&#xe60b;</i> 6087</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">Java实现LayIM后端的核心代码</a>
-        <span><i class="iconfont">&#xe60b;</i> 767</span>
-      </dd>
+
     </dl>
 
     <dl class="fly-panel fly-list-one">
       <dt class="fly-panel-title">近期热议</dt>
       <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局之基本结构</a>
+        <a href="{% url 'jiedetail' 0 %}">使用 layui 秒搭后台大布局之基本结构</a>
         <span><i class="iconfont">&#xe60c;</i> 96</span>
       </dd>
       <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局之基本结构</a>
+        <a href="{% url 'jiedetail' 0 %}">使用 layui 秒搭后台大布局之基本结构</a>
         <span><i class="iconfont">&#xe60c;</i> 96</span>
       </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="{% url 'jiedetail' %}">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
+
     </dl>
 
     <div class="fly-panel fly-link">

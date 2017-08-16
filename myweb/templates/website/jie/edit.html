@@ -2,25 +2,26 @@
   {% load static %}
 <!DOCTYPE html>
 <html>
-{% block title %}添加{% endblock %}
+{% block title %}编辑{% endblock %}
 {% block content%}
 <div class="main layui-clear">
   <div class="fly-panel" pad20>
-    <h2 class="page-title">发表问题</h2>
+    <h2 class="page-title">编辑问题</h2>
 
     <!-- <div class="fly-none">并无权限</div> -->
 
     <div class="layui-form layui-form-pane">
-      <form action="{% url 'jieadd' %}"  method="post" >
+      <form action="0"  method="post" >
         <div class="layui-form-item">
           <label for="L_title" class="layui-form-label">标题</label>
           <div class="layui-input-block">
-            <input type="text" id="L_title" name="title" required lay-verify="required" autocomplete="off" class="layui-input">
+            <input type="text" id="L_title" name="title" value="{{ article.title }}" required lay-verify="required" autocomplete="off" class="layui-input">
           </div>
+            <input type="hidden" name="articleId" value="{{ article.aid }}">
         </div>
         <div class="layui-form-item layui-form-text">
           <div class="layui-input-block">
-            <textarea id="L_content" name="content" required lay-verify="required" placeholder="请输入内容" class="layui-textarea fly-editor" style="height: 260px;"></textarea>
+            <textarea id="L_content" name="content" required lay-verify="required" placeholder="请输入内容" class="layui-textarea fly-editor" style="height: 260px;">{{ article.content }}</textarea>
           </div>
           <label for="L_content" class="layui-form-label" style="top: -2px;">描述</label>
         </div>
@@ -31,7 +32,7 @@
               <select lay-verify="required" name="class">
                 <option></option>
                   {%  for cate in category %}
-                <option value="{{ cate.cid }}" >{{ cate.category }}</option>
+                <option value="{{ cate.cid }}" {% if article.Article_Category.all.values_list.0.0 == cate.cid %}selected {% endif %}>{{ cate.category }}</option>
                   {% endfor %}
               </select>
             </div>
@@ -40,10 +41,10 @@
             <label class="layui-form-label">悬赏飞吻</label>
             <div class="layui-input-block">
               <select name="experience">
-                <option value="5" selected>5</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
+                <option value="5" {% if article.score == 5 %}selected {% endif %}>5</option>
+                <option value="20" {% if article.score == 20 %}selected {% endif %}>20</option>
+                <option value="50" {% if article.score == 50 %}selected {% endif %}>50</option>
+                <option value="100" {% if article.score == 100 %}selected {% endif %}>100</option>
               </select>
             </div>
           </div>

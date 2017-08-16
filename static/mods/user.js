@@ -25,13 +25,14 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
   //我的相关数据
   var elemUC = $('#LAY_uc'), elemUCM = $('#LAY_ucm');
   gather.minelog = {};
+
   gather.mine = function(index, type, url){
     var tpl = [
       //求解
       '{{# for(var i = 0; i < d.rows.length; i++){ }}\
       <li>\
         {{# if(d.rows[i].collection_time){ }}\
-          <a class="jie-title" href="/jie/{{d.rows[i].id}}.html" target="_blank">{{= d.rows[i].title}}</a>\
+          <a class="jie-title" href="/jie/detail/{{d.rows[i].id}}" target="_blank">{{= d.rows[i].title}}</a>\
           <i>收藏于{{ d.rows[i].collection_time }}</i>\
         {{# } else { }}\
           {{# if(d.rows[i].status == 1){ }}\
@@ -40,7 +41,7 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
           {{# if(d.rows[i].accept >= 0){ }}\
           <span class="jie-status jie-status-ok">已解决</span>\
           {{# } }}\
-          <a class="jie-title" href="/jie/{{d.rows[i].id}}.html" target="_blank">{{= d.rows[i].title}}</a>\
+          <a class="jie-title" href="/jie/detail/{{d.rows[i].id}}" target="_blank">{{= d.rows[i].title}}</a>\
           <i>{{new Date(d.rows[i].time).toLocaleString()}}</i>\
           {{# if(d.rows[i].accept == -1){ }}\
           <a class="mine-edit" href="/jie/edit/{{d.rows[i].id}}">编辑</a>\
@@ -65,29 +66,23 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
         //我收藏的帖
         if(type === 'collection'){
           var nums = 10; //每页出现的数据量
-          fly.json(url, {}, function(res){
+          fly.jsonn(url, {}, function(res){
             res.count = res.rows.length;
-
             var rows = fly.sort(res.rows, 'collection_timestamp')
             ,render = function(curr){
               var data = []
               ,start = curr*nums - nums
               ,last = start + nums - 1;
-
-              if(last >= rows.length){
-                last = curr > 1 ? rows.length - (last - rows.length) : rows.length - 1;
-              }
-
+              last=last>rows.length?rows.length-1:last;
               for(var i = start; i <= last; i++){
                 data.push(rows[i]);
               }
-
               res.rows = data;
               
               view(res);
             };
 
-            render(curr)
+            render(curr);
             gather.minelog['collect-page-' + curr] = res;
 
             now || laypage({
@@ -103,14 +98,16 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
             });
           });
         } else {
-          fly.json('/api/'+ type +'/', {
+          fly.jsonn('/api/'+ type , {
             page: curr
           }, function(res){
+            res.count = res.rows.length;
             view(res);
+            console.log(parseInt(res.count/10));
             gather.minelog['mine-jie-page-' + curr] = res;
             now || laypage({
               cont: 'LAY_page'
-              ,pages: res.pages
+              ,pages: parseInt(res.count/10)+1
               ,skin: 'fly'
               ,curr: curr
               ,jump: function(e, first){
@@ -131,7 +128,7 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
 
   if(elemUC[0]){
     layui.each(dom.mine.children(), function(index, item){
-      var othis = $(item)
+      var othis = $(item);
       gather.mine(index, othis.data('type'), othis.data('url'));
     });
   }
@@ -139,7 +136,6 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
   //Hash地址的定位
   var layid = location.hash.replace(/^#/, '');
   element.tabChange('user', layid);
-  
   element.on('tab(user)', function(elem){
     location.hash = ''+ $(this).attr('lay-id');
   });
@@ -161,11 +157,9 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
         ,method: 'post'
         ,url: '/user/upload/'
         ,before: function(){
-          console.log("发送前");
           avatarAdd.find('.loading').show();
         }
         ,success: function(res){
-          console.log(res);
           if(res.status === 0){
             $.post('userset', {
               avatar: res.url

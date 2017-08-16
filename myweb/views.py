@@ -2,11 +2,12 @@ from django.shortcuts import render,redirect,render_to_response
 import os,json
 from django.contrib.auth.models import User
 from django.contrib.auth import  authenticate,login,logout
-from .models import Webuser
+from .models import Webuser,Category,Attachment,Article
 from .forms import LoginForm,RegForm
 from django.http import HttpResponse
 from django.contrib import messages
 from django.core import serializers
+import time
 from  django.conf import settings
 # Create your views here.
 
@@ -18,26 +19,69 @@ def tips(request):
 def h404(request):
     return render(request, 'website/404.html')
 def index(request):
-    user=request.user
+    if request.user.is_authenticated():
+        articles = Article.objects.all()
+        webuser = Webuser.objects.get(user_id=request.user.id)
+        return render(request, 'website/index.html',{'webuser':webuser,"articles":articles})
+    else:
+        return render(request, 'website/user/login.html')
+def jieindex(request,page=1):
+    if request.user.is_authenticated():
+        page=int(page)
+        webuser = Webuser.objects.get(user_id=request.user.id)
+        num=Article.objects.all().count()
+        num=int(num/10)+1
+        start=10*(page-1)
+        end=start+10
+        articles=Article.objects.all().order_by("pubTime")[start:end]
+        result={
+            "curr":page,
+            "num":num
+        }
+        return render(request, 'website/jie/index.html',{'webuser':webuser,"articles":articles,'result':json.dumps(result)})
+    else:
+        return render(request, 'website/user/login.html')
+def jiedetail(request,aid):
     webuser = Webuser.objects.get(user_id=request.user.id)
-    return render(request, 'website/index.html',{'webuser':webuser})
-def full(request):
-    return render(request, 'website/full.html')
-def jieindex(request):
-    webuser = Webuser.objects.get(user_id=request.user.id)
-    return render(request, 'website/jie/index.html',{'webuser':webuser})
-def jiedetail(request):
-    webuser = Webuser.objects.get(user_id=request.user.id)
-    return render(request, 'website/jie/detail.html',{'webuser':webuser})
+    if aid == '0':
+        return render(request, 'website/404.html', {'webuser': webuser})
+    else:
+        article = Article.objects.get(aid=aid)
+        result={
+            "content":article.content,
+            "status":0
+        }
+        return render(request, 'website/jie/detail.html',{'webuser':webuser, 'article':article, "result":json.dumps(result)})
 def jieadd(request):
     webuser = Webuser.objects.get(user_id=request.user.id)
-    return render(request, 'website/jie/add.html',{'webuser':webuser})
+    title = request.POST.get('title')
+    if title:
+        content = request.POST.get('content')
+        category = request.POST.get('class')
+        experience = request.POST.get('experience')
+        article=Article.objects.create(creator=webuser)
+        article.title=title
+        article.content=content
+        article.score=experience
+        article.Article_Category=category
+        article.save()
+        result = {
+            "content": article.content,
+            "status": 0
+        }
+        return render(request, 'website/jie/detail.html', {'webuser': webuser, 'article': article,"result":json.dumps(result)})
+    else:
+        category=Category.objects.all()
+        return render(request, 'website/jie/add.html',{'webuser':webuser,'category':category})
 def userindex(request):
     webuser = Webuser.objects.get(user_id=request.user.id)
     return render(request, 'website/user/index.html',{'webuser':webuser})
-def userhome(request):
+def userhome(request,uid):
     webuser = Webuser.objects.get(user_id=request.user.id)
-    return render(request, 'website/user/home.html',{'webuser':webuser})
+    user=Webuser.objects.get(user_id=uid)
+    articles=Article.objects.filter(creator=user)
+    print(articles)
+    return render(request, 'website/user/home.html',{'webuser':webuser,'user':user,'articles':articles})
 def userset(request):
     user = request.user
     nowpass = request.POST.get("nowpass")
@@ -91,8 +135,9 @@ def userlogin(request):
             user=authenticate(username=username,password=password)
             if user:
                 login(request,user)
-                webuser = Webuser.objects.get(user_id=user.id)
-                return render(request,'website/user/home.html',{'webuser':webuser})
+                articles = Article.objects.all()
+                webuser = Webuser.objects.get(user_id=request.user.id)
+                return render(request, 'website/index.html', {'webuser': webuser, "articles": articles})
             else:
                 return render(request, 'website/user/login.html')
         else:
@@ -129,11 +174,87 @@ def upload_avatar(request):
     for chunk in file.chunks():  # 分块写入文件
         filepath.write(chunk)
         filepath.close()
-    #return render(request, 'website/user/set.html',{'webuser':webuser})
     result={
         "status":0,
         "url":filepath.name,
         "msg":"头像上传成功"
-
+    }
+    return HttpResponse(json.dumps(result))
+def upload_img(request):
+    file=request.FILES['file']
+    filepath=open(os.path.join("static/images/images", file.name), 'wb+')
+    webuser = Webuser.objects.get(user_id=request.user.id)
+    webuser.avatar=filepath.name
+    webuser.save()
+    for chunk in file.chunks():  # 分块写入文件
+        filepath.write(chunk)
+        filepath.close()
+    result={
+        "status":0,
+        "url":filepath.name,
+        "msg":"头像上传成功"
+    }
+    return HttpResponse(json.dumps(result))
+def jieedit(request,aid):
+    webuser = Webuser.objects.get(user_id=request.user.id)
+    if aid != '0':
+        article = Article.objects.get(aid=aid)
+        category = Category.objects.all()
+        category_id=article.Article_Category.all().values('cid')
+        return render(request, 'website/jie/edit.html',{'webuser':webuser, 'article': article,'category':category})
+    else:
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        category = request.POST.get('class')
+        experience = request.POST.get('experience')
+        article = Article.objects.get(aid=int(request.POST.get('articleId')))
+        article.title = title
+        article.content = content
+        article.score = experience
+        article.Article_Category = category
+        article.save()
+        result = {
+            "content": article.content,
+            "status": 0
+        }
+        return  render(request, 'website/jie/detail.html', {'webuser': webuser, 'article': article, "result":json.dumps(result)})
+def myArticle(request):
+    user=request.user
+    page=int(request.POST['page'])
+    start = 10 * (page - 1)
+    end = start + 10
+    print(start,end)
+    webuser = Webuser.objects.get(user_id=user.id)
+    articles = Article.objects.filter(creator=webuser).order_by("pubTime")[start:end]
+    rows=[]
+    for article in articles:
+        row = {}
+        row['id']=article.aid
+        row['title']=article.title
+        row['status']=1#是否加精
+        row['accept']=-1#是否已解决
+        row['time']=str(article.pubTime)
+        row['comment']=0
+        row['hits']=0
+        rows.append(row)
+    result={
+        "status":0,
+        "rows":rows,
+    }
+    return HttpResponse(json.dumps(result))
+def myCollection(request):
+    user=request.user
+    webuser = Webuser.objects.get(user_id=user.id)
+    articles = Article.objects.filter(creator=webuser)
+    rows = []
+    for article in articles:
+        row = {}
+        row['id'] = article.aid
+        row['title'] = article.title
+        row['collection_time'] = str(article.pubTime)
+        rows.append(row)
+    result = {
+        "status": 0,
+        "rows": rows
     }
     return HttpResponse(json.dumps(result))
