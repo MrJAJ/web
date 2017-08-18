@@ -4,7 +4,39 @@
 <html>
 {% block title %}个人主页{% endblock %}
 {% block content%}
+ <script>
+     function escape(html){
+      return String(html||'')
+          .replace(/&(?!#?[a-zA-Z0-9]+;)/g, '&amp;')
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+    }
+    //内容转义
+     function con(content){
+      //支持的html标签
+         var facee = {"[微笑]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/5c/huanglianwx_thumb.gif","[嘻嘻]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/0b/tootha_thumb.gif","[哈哈]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/6a/laugh.gif","[可爱]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/14/tza_thumb.gif","[可怜]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/af/kl_thumb.gif","[挖鼻]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/0b/wabi_thumb.gif","[吃惊]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/f4/cj_thumb.gif","[害羞]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/6e/shamea_thumb.gif","[挤眼]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/c3/zy_thumb.gif","[闭嘴]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/29/bz_thumb.gif","[鄙视]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/71/bs2_thumb.gif","[爱你]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/6d/lovea_thumb.gif","[泪]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/9d/sada_thumb.gif","[偷笑]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/19/heia_thumb.gif","[亲亲]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/8f/qq_thumb.gif","[生病]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/b6/sb_thumb.gif","[太开心]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/58/mb_thumb.gif","[白眼]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/d9/landeln_thumb.gif","[右哼哼]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/98/yhh_thumb.gif","[左哼哼]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/6d/zhh_thumb.gif","[嘘]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/a6/x_thumb.gif","[衰]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/af/cry.gif","[委屈]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/73/wq_thumb.gif","[吐]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/9e/t_thumb.gif","[哈欠]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/cc/haqianv2_thumb.gif","[抱抱]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/27/bba_thumb.gif","[怒]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/7c/angrya_thumb.gif","[疑问]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/5c/yw_thumb.gif","[馋嘴]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/a5/cza_thumb.gif","[拜拜]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/70/88_thumb.gif","[思考]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/e9/sk_thumb.gif","[汗]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/24/sweata_thumb.gif","[困]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/40/kunv2_thumb.gif","[睡]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/96/huangliansj_thumb.gif","[钱]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/90/money_thumb.gif","[失望]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/0c/sw_thumb.gif","[酷]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/40/cool_thumb.gif","[色]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/20/huanglianse_thumb.gif","[哼]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/49/hatea_thumb.gif","[鼓掌]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/36/gza_thumb.gif","[晕]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/d9/dizzya_thumb.gif","[悲伤]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/1a/bs_thumb.gif","[抓狂]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/62/crazya_thumb.gif","[黑线]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/91/h_thumb.gif","[阴险]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/6d/yx_thumb.gif","[怒骂]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/60/numav2_thumb.gif","[互粉]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/89/hufen_thumb.gif","[心]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/40/hearta_thumb.gif","[伤心]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/ea/unheart.gif","[猪头]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/58/pig.gif","[熊猫]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/6e/panda_thumb.gif","[兔子]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/81/rabbit_thumb.gif","[ok]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/d6/ok_thumb.gif","[耶]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/d9/ye_thumb.gif","[good]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/d8/good_thumb.gif","[NO]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/ae/buyao_org.gif","[赞]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/d0/z2_thumb.gif","[来]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/40/come_thumb.gif","[弱]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/d8/sad_thumb.gif","[草泥马]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/7a/shenshou_thumb.gif","[神马]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/60/horse2_thumb.gif","[囧]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/15/j_thumb.gif","[浮云]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/bc/fuyun_thumb.gif","[给力]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/1e/geiliv2_thumb.gif","[围观]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/f2/wg_thumb.gif","[威武]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/70/vw_thumb.gif","[奥特曼]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/bc/otm_thumb.gif","[礼物]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/c4/liwu_thumb.gif","[钟]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/d3/clock_thumb.gif","[话筒]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/9f/huatongv2_thumb.gif","[蜡烛]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/d9/lazhuv2_thumb.gif","[蛋糕]":"http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/3a/cakev2_thumb.gif"};
 
+      var html = function(end){
+        return new RegExp('\\['+ (end||'') +'(pre|div|table|thead|th|tbody|tr|td|ul|li|ol|li|dl|dt|dd|h2|h3|h4|h5)\\]\\n*', 'g');
+      };
+
+      content = escape(content||'') //XSS
+      .replace(/img\[([^\s]+?)\]/g, function(img){  //转义图片
+        return '<img src="/' + img.replace(/(^img\[)|(\]$)/g, '') + '">';
+      }).replace(/@(\S+)(\s+?|$)/g, '@<a href="javascript:;" class="fly-aite">$1</a>$2') //转义@
+      .replace(/face\[([^\s\[\]]+?)\]/g, function(face){  //转义表情
+        var alt = face.replace(/^face/g, '');
+        return '<img alt="'+ alt +'" title="'+ alt +'" src="' + facee[alt] + '">';
+      }).replace(/a\([\s\S]+?\)\[[\s\S]*?\]/g, function(str){ //转义链接
+        var href = (str.match(/a\(([\s\S]+?)\)\[/)||[])[1];
+        var text = (str.match(/\)\[([\s\S]*?)\]/)||[])[1];
+        if(!href) return str;
+        var rel =  /^(http(s)*:\/\/)\b(?!(\w+\.)*(sentsin.com|layui.com))\b/.test(href.replace(/\s/g, ''));
+        return '<a href="'+ href +'" target="_blank"'+ (rel ? ' rel="nofollow"' : '') +'>'+ (text||href) +'</a>';
+      }).replace(html(), '\<$1\>').replace(html('/'), '\</$1\>') //转移代码
+      .replace(/\n/g, '<br>') //转义换行
+      return content;
+    }
+    </script>
 <div class="fly-home" style="background-image: url();">
   <img src="/{{ user.avatar }}" alt="{{user.user.username}}">
   <h1>
@@ -22,7 +54,7 @@
   </h1>
   <p class="fly-home-info">
     <i class="iconfont icon-zuichun" title="积分"></i><span style="color: #FF7200;">{{ user.score }}</span>
-    <i class="iconfont icon-shijian"></i><span>{{ user.user.date_joined }}</span>
+    <i class="iconfont icon-shijian"></i><span>{{ user.user.date_joined|date:"Y-m-d" }}日 加入</span>
     <i class="iconfont icon-chengshi"></i><span>来自{{ user.city }}</span>
   </p>
   <p class="fly-home-sign">{{ user.desc }}</p>
@@ -31,54 +63,56 @@
 <div class="main fly-home-main">
   <div class="layui-inline fly-home-jie">
     <div class="fly-panel">
-      <h3 class="fly-panel-title">贤心 最近的提问</h3>
+      <h3 class="fly-panel-title">{{ user.user.username }} 最近的提问</h3>
       <ul class="jie-row">
-        <li>
+     <!--   <li>
           <span class="fly-jing">精</span>
           <a href="/jie/{{item.id}}.html" class="jie-title">使用 layui 秒搭后台大布局（基本结构）</a>
           <i>1天前</i>
           <em>1136阅/27答</em>
         </li>
+-->{% if articles %}
           {% for article in articles %}
         <li>
           <a href="/jie/detail/{{ article.aid }}" class="jie-title">{{ article.title }}</a>
-          <i>{{ article.pubTime }}</i>
-          <em>1136阅/27答</em>
+            <i>
+                 {{ article.pubTime|date:"Y-m-d H:i:s" }}
+            </i>
+          <em>{{ article.attach.clicks }}阅/{{ article.attach.replys }}答</em>
         </li>
             {% endfor %}
       </ul>
-      <!-- <div class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><i style="font-size:14px;">没有发表任何求解</i></div> -->
+    {% else %}
+      <div class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><i style="font-size:14px;">没有发表任何求解</i></div>
+    {% endif %}
     </div>
   </div>
 
   <div class="layui-inline fly-home-da">
     <div class="fly-panel">
-      <h3 class="fly-panel-title">贤心 最近的回答</h3>
+      <h3 class="fly-panel-title">{{ user.user.username }} 最近的回答(只显示最近五个回答)</h3>
+    {% if replys.count > 0 %}
       <ul class="home-jieda">
+          {% for reply in replys %}
         <li>
           <p>
-          <span>1分钟前</span>
-          在<a href="" target="_blank">tips能同时渲染多个吗?</a>中回答：
+              <span><script>var time=tranTime({{ reply.pubTime.timestamp }},true);
+                document.write(time);</script>分钟前</span>
+          在<a href="/jie/detail/{{ reply.parentID.aid }}" target="_blank">{{ reply.parentID.title }}</a>中回答：
           </p>
           <div class="home-dacontent">
-            尝试给layer.photos加上这个属性试试：
-<pre>
-full: true
-</pre>
-            文档没有提及
+             <script>
+                 console.log({{ reply.content|safe }});
+               var content=con({{ reply.content|safe }});
+               document.write(content);
+             </script>
           </div>
         </li>
-        <li>
-          <p>
-          <span>5分钟前</span>
-          在<a href="" target="_blank">在Fly社区用的是什么系统啊?</a>中回答：
-          </p>
-          <div class="home-dacontent">
-            Fly社区采用的是NodeJS。分享出来的只是前端模版
-          </div>
-        </li>
+          {% endfor %}
       </ul>
-      <!-- <div class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><span>没有回答任何问题</span></div> -->
+    {% else %}
+       <div class="fly-none" style="min-height: 50px; padding:30px 0; height:auto;"><span>没有回答任何问题</span></div>
+    {% endif %}
     </div>
   </div>
 

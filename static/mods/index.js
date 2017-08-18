@@ -14,7 +14,7 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
   //,util = layui.util
   ,laypage=layui.laypage
   ,device = layui.device();
-  
+
   //阻止IE7以下访问
   if(device.ie && device.ie < 8){
     layer.alert('如果您非得使用ie浏览Fly社区，那么请使用ie8+');
@@ -66,10 +66,10 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
       return $.ajax({
         type: options.type || 'post',
         dataType: options.dataType || 'json',
-        //headers: {'Content-Type': 'application/json',"X-CSRFToken":csrftoken},
         data: data,
         url: url,
         success: function(res){
+          console.log(res.status);
           if(res.status === 0) {
             success && success(res);
           } else {
@@ -295,6 +295,7 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
     }
     
     //新消息通知
+      /*
     ,newmsg: function(){
       if(layui.cache.user.uid !== -1){
         gather.json('/message/nums/', {
@@ -315,7 +316,7 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
       }
       return arguments.callee;
     }
-
+*/
     ,cookie: function(e,o,t){
       e=e||"";var n,i,r,a,c,p,s,d,u;if("undefined"==typeof o){if(p=null,document.cookie&&""!=document.cookie)for(s=document.cookie.split(";"),d=0;d<s.length;d++)if(u=$.trim(s[d]),u.substring(0,e.length+1)==e+"="){p=decodeURIComponent(u.substring(e.length+1));break}return p}t=t||{},null===o&&(o="",t.expires=-1),n="",t.expires&&("number"==typeof t.expires||t.expires.toUTCString)&&("number"==typeof t.expires?(i=new Date,i.setTime(i.getTime()+864e5*t.expires)):i=t.expires,n="; expires="+i.toUTCString()),r=t.path?"; path="+t.path:"",a=t.domain?"; domain="+t.domain:"",c=t.secure?"; secure":"",document.cookie=[e,"=",encodeURIComponent(o),n,r,a,c].join("");
     }
@@ -357,9 +358,6 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
           });
         }
       };
-      //gather.cookie('fly-style')==='stretch'?style.attr('href', style.data('href')):style.removeAttr('href');
-
-      //dict[gather.cookie('fly-style')].call(this, $(this));
       $('body').append(html);
 
       //事件
@@ -394,10 +392,6 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
     ,zIndex: 9999999999
     ,anim: -1
   });*/
-
-
-
-
   //搜索
   $('.fly-search').submit(function(){
     var input = $(this).find('input'), val = input.val();
@@ -439,7 +433,7 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
   });
 */
   //新消息通知
-  gather.newmsg();
+  //gather.newmsg();
 
   //发送激活邮件
   gather.activate = function(email){
@@ -470,8 +464,12 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
 
   //表单提交
   form.on('submit(*)', function(data){
+    console.log("tijia");
     var action = $(data.form).attr('action'), button = $(data.elem);
-    gather.json(action, data.field, function(res){
+    console.log(action);
+    gather.jsonn(action, data.field, function(res){
+      console.log("tijiaofanhui"+res);
+      console.log(res.status);
       var end = function(){
         if(res.action){
           location.href = res.action;
@@ -489,12 +487,10 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
     });
     return false;
   });
-  /*
+
   //文章表单提交
   form.on('submit(ar)', function(data){
     var action = $(data.form).attr('action'), button = $(data.elem);
-    data.field.content=gather.content(data.field.content);
-      $('#L_content').val(data.field.content);
     gather.json(action, data.field, function(res){
       var end = function(){
         if(res.action){
@@ -513,13 +509,14 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
     });
     return false;
   });
-  */
+
   //加载特定模块
   if(layui.cache.page && layui.cache.page !== 'index'){
     var extend = {};
     extend[layui.cache.page] = layui.cache.page;
     layui.extend(extend);
     layui.use(layui.cache.page);
+    console.log("加载特定模块");
   }
   
   //加载IM

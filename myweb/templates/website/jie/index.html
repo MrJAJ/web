@@ -30,16 +30,23 @@
           </a>
           <h2 class="fly-tip">
             <a href="{% url 'jiedetail'  article.aid %}">{{ article.title }}</a>
+              {% if article.attach.isTop == 1 %}
             <span class="fly-tip-stick">置顶</span>
+              {% endif %}{%if article.attach.isPicked == 1%}
             <span class="fly-tip-jing">精帖</span>
+          {% endif %}
           </h2>
           <p>
             <span><a href="{% url 'userhome' article.creator.user.id %}">{{ article.creator.user.username }}</a></span>
-            <span>{{article.pubTime }}</span>
+            <span><script>
+                var time=tranTime({{ article.pubTime.timestamp }},true);
+                document.write(time);
+            </script>
+            </span>
             <span>{{ article.Article_Category.values_list.0.1 }}</span>
             <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 317
-              <i class="iconfont" title="人气">&#xe60b;</i> 6830
+              <i class="iconfont" title="回答">&#xe60c;</i>{{ article.attach.replys }}
+              <i class="iconfont" title="人气">&#xe60b;</i>{{ article.attach.clicks }}
             </span>
           </p>
         </li>
@@ -50,12 +57,11 @@
 {% endif %}
       <div style="text-align: center">
           <div id="demo" ></div>
-        <!--<div class="laypage-main"><span class="laypage-curr">1</span><a href="/jie/page/2">2</a><a href="/jie/page/3">3</a><a href="/jie/page/4">4</a><a href="/jie/page/5">5</a><span>…</span><a href="/jie/page/148" class="laypage-last" title="尾页">尾页</a><a href="/jie/page/2" class="laypage-next">下一页</a></div>
-      -->
       </div>
 
     </div>
   </div>
 </div>
+
 {% endblock %}
 </html>

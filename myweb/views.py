@@ -7,7 +7,7 @@ from .forms import LoginForm,RegForm
 from django.http import HttpResponse
 from django.contrib import messages
 from django.core import serializers
-import time
+import time,datetime
 from  django.conf import settings
 # Create your views here.
 
@@ -20,7 +20,7 @@ def h404(request):
     return render(request, 'website/404.html')
 def index(request):
     if request.user.is_authenticated():
-        articles = Article.objects.all()
+        articles = Article.objects.filter(parentID=0)
         webuser = Webuser.objects.get(user_id=request.user.id)
         return render(request, 'website/index.html',{'webuser':webuser,"articles":articles})
     else:
@@ -29,11 +29,11 @@ def jieindex(request,page=1):
     if request.user.is_authenticated():
         page=int(page)
         webuser = Webuser.objects.get(user_id=request.user.id)
-        num=Article.objects.all().count()
+        num=Article.objects.filter(parentID=0).count()
         num=int(num/10)+1
         start=10*(page-1)
         end=start+10
-        articles=Article.objects.all().order_by("pubTime")[start:end]
+        articles=Article.objects.filter(parentID=0).order_by("pubTime")[start:end]
         result={
             "curr":page,
             "num":num
@@ -46,12 +46,20 @@ def jiedetail(request,aid):
     if aid == '0':
         return render(request, 'website/404.html', {'webuser': webuser})
     else:
-        article = Article.objects.get(aid=aid)
+        replys = Article.objects.filter(parentID=aid).order_by('pubTime')
+        article=Article.objects.get(aid=aid)
+        attch = Attachment.objects.get(id=article.attach.id)
+        attch.clicks += 1
+        attch.save()
+        article.attach=attch
+        for reply in replys:
+            reply.content=json.dumps(reply.content)
         result={
             "content":article.content,
-            "status":0
+            "status":0,
         }
-        return render(request, 'website/jie/detail.html',{'webuser':webuser, 'article':article, "result":json.dumps(result)})
+        print(replys[0].content)
+        return render(request, 'website/jie/detail.html',{'webuser':webuser, 'replys':replys, "article":article,"result":json.dumps(result)})
 def jieadd(request):
     webuser = Webuser.objects.get(user_id=request.user.id)
     title = request.POST.get('title')
@@ -64,12 +72,16 @@ def jieadd(request):
         article.content=content
         article.score=experience
         article.Article_Category=category
+        attach=Attachment.objects.create()
+        attach.save()
+        article.attach=attach
         article.save()
         result = {
             "content": article.content,
             "status": 0
         }
-        return render(request, 'website/jie/detail.html', {'webuser': webuser, 'article': article,"result":json.dumps(result)})
+        replys = Article.objects.filter(parentID=article.aid).order_by('pubTime')
+        return render(request, 'website/jie/detail.html', {'webuser': webuser, 'replys': replys, "article":article,"result":json.dumps(result)})
     else:
         category=Category.objects.all()
         return render(request, 'website/jie/add.html',{'webuser':webuser,'category':category})
@@ -79,9 +91,12 @@ def userindex(request):
 def userhome(request,uid):
     webuser = Webuser.objects.get(user_id=request.user.id)
     user=Webuser.objects.get(user_id=uid)
-    articles=Article.objects.filter(creator=user)
-    print(articles)
-    return render(request, 'website/user/home.html',{'webuser':webuser,'user':user,'articles':articles})
+    articles=Article.objects.filter(creator=user).filter(parentID=0).order_by('-pubTime')
+    replys=Article.objects.filter(creator=user).exclude(parentID=0).order_by('-pubTime')[0:5]
+    for reply in replys:
+        reply.content = json.dumps(reply.content)
+        print(reply.content)
+    return render(request, 'website/user/home.html',{'webuser':webuser,'user':user,'articles':articles,"replys":replys})
 def userset(request):
     user = request.user
     nowpass = request.POST.get("nowpass")
@@ -135,7 +150,7 @@ def userlogin(request):
             user=authenticate(username=username,password=password)
             if user:
                 login(request,user)
-                articles = Article.objects.all()
+                articles = Article.objects.filter(parentID=0)
                 webuser = Webuser.objects.get(user_id=request.user.id)
                 return render(request, 'website/index.html', {'webuser': webuser, "articles": articles})
             else:
@@ -167,7 +182,7 @@ def userlogout(request):
     return render(request, 'website/user/login.html')
 def upload_avatar(request):
     file=request.FILES['file']
-    filepath=open(os.path.join("static/images/avatar", file.name), 'wb+')
+    filepath=open(os.path.join("static/images/avatar/", file.name), 'wb+')
     webuser = Webuser.objects.get(user_id=request.user.id)
     webuser.avatar=filepath.name
     webuser.save()
@@ -182,17 +197,14 @@ def upload_avatar(request):
     return HttpResponse(json.dumps(result))
 def upload_img(request):
     file=request.FILES['file']
-    filepath=open(os.path.join("static/images/images", file.name), 'wb+')
-    webuser = Webuser.objects.get(user_id=request.user.id)
-    webuser.avatar=filepath.name
-    webuser.save()
+    filepath=open(os.path.join("static/images/images/", file.name), 'wb+')
     for chunk in file.chunks():  # 分块写入文件
         filepath.write(chunk)
         filepath.close()
     result={
         "status":0,
         "url":filepath.name,
-        "msg":"头像上传成功"
+        "msg":"图像上传成功"
     }
     return HttpResponse(json.dumps(result))
 def jieedit(request,aid):
@@ -213,19 +225,20 @@ def jieedit(request,aid):
         article.score = experience
         article.Article_Category = category
         article.save()
+        replys = Article.objects.filter(parentID=int(request.POST.get('articleId'))).order_by('pubTime')
         result = {
             "content": article.content,
             "status": 0
         }
-        return  render(request, 'website/jie/detail.html', {'webuser': webuser, 'article': article, "result":json.dumps(result)})
+        return  render(request, 'website/jie/detail.html', {'webuser': webuser, 'replys': replys, "article":article,"result":json.dumps(result)})
 def myArticle(request):
     user=request.user
     page=int(request.POST['page'])
     start = 10 * (page - 1)
     end = start + 10
-    print(start,end)
     webuser = Webuser.objects.get(user_id=user.id)
-    articles = Article.objects.filter(creator=webuser).order_by("pubTime")[start:end]
+    num= Article.objects.filter(creator=webuser).filter(parentID=0).count()
+    articles = Article.objects.filter(creator=webuser).filter(parentID=0).order_by("pubTime")[start:end]
     rows=[]
     for article in articles:
         row = {}
@@ -234,12 +247,13 @@ def myArticle(request):
         row['status']=1#是否加精
         row['accept']=-1#是否已解决
         row['time']=str(article.pubTime)
-        row['comment']=0
-        row['hits']=0
+        row['comment']=article.attach.replys
+        row['hits']=article.attach.clicks
         rows.append(row)
     result={
         "status":0,
         "rows":rows,
+        "num":num
     }
     return HttpResponse(json.dumps(result))
 def myCollection(request):
@@ -256,5 +270,26 @@ def myCollection(request):
     result = {
         "status": 0,
         "rows": rows
+    }
+    return HttpResponse(json.dumps(result))
+def jiereply(request):
+    webuser = Webuser.objects.get(user_id=request.user.id)
+    content = request.POST.get('content')
+    jid=request.POST.get('jid')
+    parentArticle=Article.objects.get(aid=jid)
+    print(jid)
+    print(parentArticle.title)
+    article = Article.objects.create(creator=webuser)
+    article.content = content
+    article.parentID =parentArticle
+    attach=Attachment.objects.create()
+    article.attach=attach
+    parentArticle.attach.replys += 1
+    attach.save()
+    article.save()
+    parentArticle.attach.save()
+    result = {
+        "status": 0,
+        "msg": 'sussess'
     }
     return HttpResponse(json.dumps(result))

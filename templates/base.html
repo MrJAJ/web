@@ -10,7 +10,28 @@
   <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}">
   <link rel="stylesheet" href="{% static  'css/global.css' %}">
   <link rel="stylesheet" data-href="{% static  'css/full.css' %}" class="fly-style" id="style">
-{% block head %}{% endblock %}
+    <script>
+    function tranTime(time,brief) {
+      var stamp = new Date().getTime() - time*1000;
+      if(stamp > 1000*60*60*24*30){
+        stamp =  new Date(time).toLocaleString('chinese', {
+          hour12: false
+        }).replace(/\//g, '-');
+        brief && (stamp = stamp.replace(/\s[\S]+$/g, ''));
+        return stamp;
+      }
+      if(stamp >= 1000*60*60*24){
+        return ((stamp/1000/60/60/24)|0) + '天前';
+      } else if(stamp >= 1000*60*60){
+        return ((stamp/1000/60/60)|0) + '小时前';
+      } else if(stamp >= 1000*60*5){
+        return ((stamp/1000/60)|0) + '分钟前';
+      } else {
+        return '刚刚';
+      }
+    }
+    </script>
+    {% block head %}{% endblock %}
 
 </head>
 <body>
@@ -96,7 +117,6 @@ return ""
 }
     var acookie=getCookie("fly-style");
     var style=document.getElementById("style");
-    console.log(style.getAttribute('data-href'));
     if(acookie=='stretch'){
     style.setAttribute('href', '{% static 'css/full.css' %}');
 
@@ -126,11 +146,11 @@ return ""
 <script>
 layui.cache.page = '';
 layui.cache.user = {
-  username: '游客'
-  ,uid: -1
-  ,avatar: '{% static 'images/avatar/00.jpg'%}'
-  ,experience: 83
-  ,sex: '女'
+  username: '{{ request.user.username }}'
+  ,uid: {{ request.user.id }}
+  ,avatar: '/{{ webuser.avatar }}'
+  ,experience: {{ webuser.score }}
+  ,sex: {{ webuser.sex }}
 };
 layui.config({
   version: "1.1.0"

@@ -24,7 +24,7 @@ layui.define(['laypage', 'fly'], function(exports){
   fly.form['/jie/reply/'] = function(data, required){
     var tpl = '<li>\
       <div class="detail-about detail-about-reply">\
-        <a class="jie-user" href="/user/">\
+        <a class="jie-user" href="/userhome/{{d.user.uid}}">\
           <img src="{{= d.user.avatar}}" alt="{{= d.user.username}}">\
           <cite>{{d.user.username}}</cite>\
         </a>\
@@ -106,6 +106,7 @@ layui.define(['laypage', 'fly'], function(exports){
     var div = $('.fly-detail-hint'), jieAdmin = $('#LAY_jieAdmin');
     //查询帖子是否收藏
     if(jieAdmin[0] && layui.cache.user.uid != -1){
+      console.log("异步渲染");
       fly.json('/collection/find/', {
         cid: div.data('id')
       }, function(res){

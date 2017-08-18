@@ -9,13 +9,14 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('myweb', '0002_auto_20170818_1050'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='Article',
             fields=[
-                ('aid', models.AutoField(primary_key=True, serialize=False)),
+                ('aid', models.AutoField(primary_key=True, serialize=True)),
                 ('title', models.CharField(max_length=50, default='这是标题')),
                 ('content', models.TextField()),
                 ('pubTime', models.DateTimeField(auto_now_add=True)),

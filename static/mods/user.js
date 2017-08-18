@@ -33,7 +33,7 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
       <li>\
         {{# if(d.rows[i].collection_time){ }}\
           <a class="jie-title" href="/jie/detail/{{d.rows[i].id}}" target="_blank">{{= d.rows[i].title}}</a>\
-          <i>收藏于{{ d.rows[i].collection_time }}</i>\
+          <i>收藏于{{ new Date(d.rows[i].collection_time).toLocaleString()}}</i>\
         {{# } else { }}\
           {{# if(d.rows[i].status == 1){ }}\
           <span class="fly-jing">精</span>\
@@ -84,7 +84,7 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
 
             render(curr);
             gather.minelog['collect-page-' + curr] = res;
-
+            console.log("发帖数目"+rows.length);
             now || laypage({
               cont: 'LAY_page1'
               ,pages: Math.ceil(rows.length/nums) //得到总页数
@@ -103,11 +103,11 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
           }, function(res){
             res.count = res.rows.length;
             view(res);
-            console.log(parseInt(res.count/10));
+            console.log("发帖数目"+res.num);
             gather.minelog['mine-jie-page-' + curr] = res;
             now || laypage({
               cont: 'LAY_page'
-              ,pages: parseInt(res.count/10)+1
+              ,pages: parseInt(res.num/10)+1
               ,skin: 'fly'
               ,curr: curr
               ,jump: function(e, first){

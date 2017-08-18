@@ -40,4 +40,5 @@ urlpatterns = [
     url(r'^jie/edit/(.+)$', myview.jieedit, name='jieedit'),
     url(r'^api/mine-jie', myview.myArticle, name='jiemine'),
     url(r'^collection/find', myview.myCollection, name='myCollection'),
+    url(r'^jie/reply', myview.jiereply, name='jiereply'),
 ]
