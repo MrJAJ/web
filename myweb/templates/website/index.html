@@ -11,9 +11,9 @@
       <div class="fly-tab fly-tab-index">
         <span>
           <a href="{% url 'jieindex' 1%}">全部</a>
-          <a href="">未结帖</a>
-          <a href="">已采纳</a>
-          <a href="">精帖</a>
+          <a href="{% url 'jietie' "unsolved" 1%}">未结帖</a>
+          <a href="{% url 'jietie' "solved" 1%}">已采纳</a>
+          <a href="{% url 'jietie' "picked" 1%}">精帖</a>
           <a href="{% url 'userindex' %}">我的帖</a>
         </span>
         <form action="http://cn.bing.com/search" class="fly-search">
@@ -25,43 +25,37 @@
 
 
       <ul class="fly-list fly-list-top">
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' webuser.user.id %}" class="fly-list-avatar">
-            <img src="http://tp4.sinaimg.cn/1345566427/180/5730976522/0" alt="">
+          {% for article in pickedArticles %}
+       <li class="fly-list-li">
+          <a href="{% url 'userhome' article.creator.user.id %}" class="fly-list-avatar">
+            <img src="/{{ article.creator.avatar }}" alt="">
           </a>
           <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' 0%}">基于 layui的轻量级问答社区页面模版 V2版本</a>
+            <a href="{% url 'jiedetail' article.aid %}">{{ article.title }}</a>
+              {% if article.attach.isTop == 1 %}
             <span class="fly-tip-stick">置顶</span>
+              {% endif %}{%if article.attach.isPicked == 1%}
             <span class="fly-tip-jing">精帖</span>
+          {% endif %}{%if article.attach.isFinish == 0 %}
+          <span>未结贴</span>
+            {% elif article.attach.isFinish == 1%}
+           <span class="fly-tip-jie">已采纳</span>
+            {% endif %}
           </h2>
           <p>
-            <span><a href="{% url 'userhome' webuser.user.id%}">贤心</a></span>
-            <span>刚刚</span>
-            <span>layui框架综合</span>
+            <span><a href="{% url 'userhome' article.creator.user.id%}">{{ article.creator.user.username }}</a></span>
+            <span><script>
+                var time=tranTime({{ article.pubTime.timestamp }},true);
+                document.write(time);
+            </script></span>
+            <span>{{ article.Article_Category.values_list.0.1 }}</span>
             <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 317
-              <i class="iconfont" title="人气">&#xe60b;</i> 6830
+              <i class="iconfont" title="回答">&#xe60c;</i> {{ article.attach.replys }}
+              <i class="iconfont" title="人气">&#xe60b;</i> {{ article.attach.clicks }}
             </span>
           </p>
         </li>
-        <li class="fly-list-li">
-          <a href="{% url 'userhome' webuser.user.id %}" class="fly-list-avatar">
-            <img src="{% static 'images/avatar/00.jpg' %}" alt="">
-          </a>
-          <h2 class="fly-tip">
-            <a href="{% url 'jiedetail' 0 %}">基于 layui的轻量级问答社区页面模版 V2版本</a>
-            <span class="fly-tip-stick">置顶</span>
-          </h2>
-          <p>
-            <span><a href="{% url 'userhome' webuser.user.id %}">纸飞机</a></span>
-            <span>30分钟前</span>
-            <span>技术闲谈</span>
-            <span class="fly-list-hint">
-              <i class="iconfont" title="回答">&#xe60c;</i> 0
-              <i class="iconfont" title="人气">&#xe60b;</i> 81689
-            </span>
-          </p>
-        </li>
+        {% endfor %}
       </ul>
 
       <ul class="fly-list">
@@ -72,6 +66,16 @@
           </a>
           <h2 class="fly-tip">
             <a href="{% url 'jiedetail' article.aid %}">{{ article.title }}</a>
+              {% if article.attach.isTop == 1 %}
+            <span class="fly-tip-stick">置顶</span>
+              {% endif %}{%if article.attach.isPicked == 1%}
+            <span class="fly-tip-jing">精帖</span>
+          {% endif %}
+          {%if article.attach.isFinish == 0 %}
+          <span>未结贴</span>
+            {% elif article.attach.isFinish == 1%}
+           <span class="fly-tip-jie">已采纳</span>
+            {% endif %}
           </h2>
           <p>
             <span><a href="{% url 'userhome' article.creator.user.id%}">{{ article.creator.user.username }}</a></span>
@@ -103,47 +107,36 @@
     <div class="fly-panel leifeng-rank">
       <h3 class="fly-panel-title">近一月回答榜 - TOP 12</h3>
       <dl>
+          {% for user in users %}
         <dd>
-          <a href="{% url 'userhome' webuser.user.id%}">
-            <img src="{% static 'images/avatar/default.png'%}" alt="">
-            <cite>纸飞机</cite>
-            <i>159次回答</i>
+          <a href="{% url 'userhome' user.creator.user.id %}">
+            <img src="/{{ user.creator.avatar }}" alt="">
+            <cite>{{ user.creator.user.username }}</cite>
+            <i>{{ user.num }}</i>
           </a>
         </dd>
-        <dd>
-          <a href="{% url 'userhome' webuser.user.id%}">
-             <img src="{% static 'images/avatar/default.png'%}" alt="">
-            <cite>纸飞机</cite>
-            <i>159次回答</i>
-          </a>
-        </dd>
+      {% endfor %}
       </dl>
     </div>
 
     <dl class="fly-panel fly-list-one">
       <dt class="fly-panel-title">最近热帖</dt>
+        {% for article in mlarticles%}
       <dd>
-        <a href="{% url 'jiedetail' 0 %}">使用 layui 秒搭后台大布局（基本结构）</a>
-        <span><i class="iconfont">&#xe60b;</i> 6087</span>
+        <a href="{% url 'jiedetail' article.0 %}">{{ article.1 }}</a>
+        <span><i class="iconfont">&#xe60b;</i> {{ article.2 }}</span>
       </dd>
-      <dd>
-        <a href="{% url 'jiedetail' 0 %}">Java实现LayIM后端的核心代码</a>
-        <span><i class="iconfont">&#xe60b;</i> 767</span>
-      </dd>
-
+        {% endfor %}
     </dl>
 
     <dl class="fly-panel fly-list-one">
       <dt class="fly-panel-title">近期热议</dt>
-      <dd>
-        <a href="{% url 'jiedetail' 0 %}">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
+        {% for article in mrarticles %}
+        <dd>
+        <a href="{% url 'jiedetail' article.0 %}">{{ article.1 }}</a>
+        <span><i class="iconfont">&#xe60c;</i> {{ article.2 }}</span>
       </dd>
-      <dd>
-        <a href="{% url 'jiedetail' 0 %}">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-
+        {% endfor %}
     </dl>
 
     <div class="fly-panel fly-link">

@@ -55,11 +55,11 @@ layui.define(['laypage', 'fly'], function(exports){
     del: function(div){
       layer.confirm('确认删除该求解么？', function(index){
         layer.close(index);
-        fly.json('/api/jie-delete/', {
+        fly.jsonn('/jie/delete/', {
           id: div.data('id')
         }, function(res){
           if(res.status === 0){
-            location.href = '/jie/';
+            location.href = '/';
           } else {
             layer.msg(res.msg);
           }
@@ -70,7 +70,7 @@ layui.define(['laypage', 'fly'], function(exports){
     //设置置顶、状态
     ,set: function(div){
       var othis = $(this);
-      fly.json('/api/jie-set/', {
+      fly.jsonn('/api/jieda/set/', {
         id: div.data('id')
         ,rank: othis.attr('rank')
         ,field: othis.attr('field')
@@ -79,12 +79,10 @@ layui.define(['laypage', 'fly'], function(exports){
           location.reload();
         }
       });
-    }
-
-    //收藏
+    }//收藏
     ,collect: function(div){
       var othis = $(this), type = othis.data('type');
-      fly.json('/collection/'+ type +'/', {
+      fly.jsonn('/collection/'+ type +'/', {
         cid: div.data('id')
       }, function(res){
         if(type === 'add'){
@@ -119,7 +117,7 @@ layui.define(['laypage', 'fly'], function(exports){
   gather.jiedaActive = {
     zan: function(li){ //赞
       var othis = $(this), ok = othis.hasClass('zanok');
-      fly.json('/api/jieda-zan/', {
+      fly.jsonn('/api/jieda/zan/', {
         ok: ok
         ,id: li.data('id')
       }, function(res){
@@ -143,7 +141,7 @@ layui.define(['laypage', 'fly'], function(exports){
       var othis = $(this);
       layer.confirm('是否采纳该回答为最佳答案？', function(index){
         layer.close(index);
-        fly.json('/api/jieda-accept/', {
+        fly.jsonn('/api/jieda/accept/', {
           id: li.data('id')
         }, function(res){
           if(res.status === 0){
@@ -157,16 +155,17 @@ layui.define(['laypage', 'fly'], function(exports){
       });
     }
     ,edit: function(li){ //编辑
-      fly.json('/jie/getDa/', {
+      fly.jsonn('/api/jieda/getDa/', {
         id: li.data('id')
       }, function(res){
         var data = res.rows;
+        console.log(data);
         layer.prompt({
          formType: 2
          ,value: data.content
          ,maxlength: 100000
         }, function(value, index){
-          fly.json('/jie/updateDa/', {
+          fly.jsonn('/api/jieda/updateDa/', {
             id: li.data('id')
             ,content: value
           }, function(res){
@@ -179,7 +178,7 @@ layui.define(['laypage', 'fly'], function(exports){
     ,del: function(li){ //删除
       layer.confirm('确认删除该回答么？', function(index){
         layer.close(index);
-        fly.json('/api/jieda-delete/', {
+        fly.jsonn('/api/jieda/delete/', {
           id: li.data('id')
         }, function(res){
           if(res.status === 0){

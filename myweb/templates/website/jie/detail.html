@@ -42,7 +42,7 @@
     <div class="content detail">
       <div class="fly-panel detail-box">
         <h1 id="h1">{{ article.title}}</h1>
-        <div class="fly-tip fly-detail-hint" data-id="{{rows.id}}">
+        <div class="fly-tip fly-detail-hint" data-id="{{article.aid}}">
             {%  if article.attach.isTop == 1 %}
           <span class="fly-tip-stick">置顶帖</span>
             {% endif %} {% if article.attach.isPicked == 1%}
@@ -52,12 +52,18 @@
             {% elif article.attach.isFinish == 1%}
            <span class="fly-tip-jie">已采纳</span>
             {% endif %}
-          <!-- <span class="jie-admin" type="del" style="margin-left: 20px;">删除</span>
+        {% if webuser.user.is_superuser %}
+          <span class="jie-admin" type="del" style="margin-left: 20px;">删除</span>
+            {% if article.attach.isTop == 0 %}
           <span class="jie-admin" type="set" field="stick" rank="1">置顶</span>
+                {% else %}
           <span class="jie-admin" type="set" field="stick" rank="0" style="background-color:#ccc;">取消置顶</span>
+                {% endif %}{% if article.attach.isPicked == 0 %}
           <span class="jie-admin" type="set" field="status" rank="1">加精</span>
-          <span class="jie-admin" type="set" field="status" rank="0" style="background-color:#ccc;">取消加精</span> -->
-
+            {% else %}
+          <span class="jie-admin" type="set" field="status" rank="0" style="background-color:#ccc;">取消加精</span>
+            {% endif %}
+        {% endif %}
           <div class="fly-list-hint">
             <i class="iconfont" title="回答">&#xe60c;</i> {{ article.attach.replys }}
             <i class="iconfont" title="人气">&#xe60b;</i> {{ article.attach.clicks }}
@@ -71,11 +77,14 @@
               <em id="pubTime"></em>
             </cite>
           </a>
-          <div class="detail-hits" data-id="{{article.id}}">
+          <div class="detail-hits" data-id="{{article.aid}}">
             <span style="color:#FF7200">悬赏：{{ article.score }}飞吻</span>
             <span class="layui-btn layui-btn-mini jie-admin" type="edit"><a href="/jie/edit/{{article.aid}}">编辑此贴</a></span>
+                {% if article not in webuser.collection.all  %}
             <span class="layui-btn layui-btn-mini jie-admin " type="collect" data-type="add">收藏</span>
-            <!--<span class="layui-btn layui-btn-mini jie-admin  layui-btn-danger" type="collect" data-type="add">取消收藏</span>-->
+              {% else %}
+            <span class="layui-btn layui-btn-mini jie-admin  layui-btn-danger" type="collect" data-type="add">取消收藏</span>
+              {% endif %}
           </div>
         </div>
 
@@ -119,13 +128,17 @@
               </script>
             </div>
             <div class="jieda-reply">
-              <span class="jieda-zan zanok" type="zan"><i class="iconfont icon-zan"></i><em>{{ reply.attach.clicks }}</em></span>
+              <span class="jieda-zan" type="zan"><i class="iconfont icon-zan"></i><em>{{ reply.attach.clicks }}</em></span>
               <span type="reply"><i class="iconfont icon-svgmoban53"></i>回复</span>
-              <!-- <div class="jieda-admin">
+                {% if webuser.user.is_superuser == 1 %}
+               <div class="jieda-admin">
                 <span type="edit">编辑</span>
                 <span type="del">删除</span>
+                   {% if article.attach.isFinish == 0 %}
                 <span class="jieda-accept" type="accept">采纳</span>
-              </div> -->
+                       {% endif %}
+              </div>
+                {% endif %}
             </div>
           </li>
                 {% endfor %}
@@ -227,7 +240,6 @@
   </div>
     <script src="{% static 'layui/layui.js' %}"></script>
     <script src="{% static 'mods/face.js' %}"></script>
-
     <script>
 var data={{ result|safe }};
 var content=document.getElementById("content");

@@ -9,6 +9,8 @@ from django.contrib import messages
 from django.core import serializers
 import time,datetime
 from  django.conf import settings
+from django.db.models import Count
+from django.db import connection,transaction
 # Create your views here.
 
 
@@ -20,9 +22,28 @@ def h404(request):
     return render(request, 'website/404.html')
 def index(request):
     if request.user.is_authenticated():
-        articles = Article.objects.filter(parentID=0)
+        attch=Attachment.objects.filter(isTop=1)
+        pickedArticles=Article.objects.filter(parentID=0).filter(attach=attch)
+        articles = Article.objects.filter(parentID=0).exclude(attach=attch)
         webuser = Webuser.objects.get(user_id=request.user.id)
-        return render(request, 'website/index.html',{'webuser':webuser,"articles":articles})
+        sql = 'select aid,title,clicks from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY clicks DESC LIMIT 10'
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        mlarticles = cursor.fetchall()
+
+
+        sql2='select aid,title,replys from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY replys DESC LIMIT 10'
+        cursor=connection.cursor()
+        cursor.execute(sql2)
+        mrarticles=cursor.fetchall()
+        us=Article.objects.exclude(parentID=0).values('creator_id').annotate(num_replys=Count('creator_id')).values('creator','num_replys').order_by('-num_replys')[0:10]
+        users=[]
+        for u in us:
+            user={}
+            user['creator']=Webuser.objects.get(id=u['creator'])
+            user['num']=u['num_replys']
+            users.append(user)
+        return render(request, 'website/index.html',{'webuser':webuser,"pickedArticles":pickedArticles,"articles":articles,"mlarticles":mlarticles,"mrarticles":mrarticles,"users":users})
     else:
         return render(request, 'website/user/login.html')
 def jieindex(request,page=1):
@@ -33,12 +54,41 @@ def jieindex(request,page=1):
         num=int(num/10)+1
         start=10*(page-1)
         end=start+10
-        articles=Article.objects.filter(parentID=0).order_by("pubTime")[start:end]
+        articles=Article.objects.filter(parentID=0).order_by("pubTime").order_by("-attach__isTop")[start:end]
+        print(str(articles.query))
         result={
             "curr":page,
             "num":num
         }
         return render(request, 'website/jie/index.html',{'webuser':webuser,"articles":articles,'result':json.dumps(result)})
+    else:
+        return render(request, 'website/user/login.html')
+def jietie(request,type,page=1):
+    if request.user.is_authenticated():
+        webuser=Webuser.objects.get(user=request.user)
+        page = int(page)
+        start = 10 * (page - 1)
+        end = start + 10
+        articles=[]
+        num=0
+        if type == 'unsolved':
+            articles = Article.objects.filter(parentID=0).filter(attach__isFinish=0).order_by('pubTime').order_by("-attach__isTop")[start:end]
+            num = articles.count()
+            num = int(num / 10) + 1
+        if type == 'solved':
+            articles = Article.objects.filter(parentID=0).filter(attach__isFinish=1).order_by('pubTime').order_by("-attach__isTop")[start:end]
+            num = articles.count()
+            num = int(num / 10) + 1
+        if type == 'picked':
+            articles = Article.objects.filter(parentID=0).filter(attach__isPicked=1).order_by('pubTime').order_by("-attach__isTop")[start:end]
+            num = articles.count()
+            num = int(num / 10) + 1
+        result = {
+            "curr": page,
+            "num": num
+        }
+        return render(request, 'website/jie/index.html',{'webuser': webuser, "articles": articles, 'result': json.dumps(result)})
+
     else:
         return render(request, 'website/user/login.html')
 def jiedetail(request,aid):
@@ -58,7 +108,6 @@ def jiedetail(request,aid):
             "content":article.content,
             "status":0,
         }
-        print(replys[0].content)
         return render(request, 'website/jie/detail.html',{'webuser':webuser, 'replys':replys, "article":article,"result":json.dumps(result)})
 def jieadd(request):
     webuser = Webuser.objects.get(user_id=request.user.id)
@@ -90,12 +139,15 @@ def userindex(request):
     return render(request, 'website/user/index.html',{'webuser':webuser})
 def userhome(request,uid):
     webuser = Webuser.objects.get(user_id=request.user.id)
-    user=Webuser.objects.get(user_id=uid)
+    try:
+        us=User.objects.get(username=uid)
+    except:
+        us=User.objects.get(id=uid)
+    user=Webuser.objects.get(user=us)
     articles=Article.objects.filter(creator=user).filter(parentID=0).order_by('-pubTime')
     replys=Article.objects.filter(creator=user).exclude(parentID=0).order_by('-pubTime')[0:5]
     for reply in replys:
         reply.content = json.dumps(reply.content)
-        print(reply.content)
     return render(request, 'website/user/home.html',{'webuser':webuser,'user':user,'articles':articles,"replys":replys})
 def userset(request):
     user = request.user
@@ -171,7 +223,6 @@ def userreg(request):
         if user is not None:
             webuser=Webuser(user=user)
             webuser.save()
-            login(request,user)
             return render(request, 'website/user/login.html')
         else:
             print("user is null")
@@ -244,8 +295,8 @@ def myArticle(request):
         row = {}
         row['id']=article.aid
         row['title']=article.title
-        row['status']=1#是否加精
-        row['accept']=-1#是否已解决
+        row['status']=article.attach.isPicked#是否加精
+        row['accept']=article.attach.isFinish#是否已解决
         row['time']=str(article.pubTime)
         row['comment']=article.attach.replys
         row['hits']=article.attach.clicks
@@ -259,7 +310,7 @@ def myArticle(request):
 def myCollection(request):
     user=request.user
     webuser = Webuser.objects.get(user_id=user.id)
-    articles = Article.objects.filter(creator=webuser)
+    articles = webuser.collection.all()
     rows = []
     for article in articles:
         row = {}
@@ -277,8 +328,6 @@ def jiereply(request):
     content = request.POST.get('content')
     jid=request.POST.get('jid')
     parentArticle=Article.objects.get(aid=jid)
-    print(jid)
-    print(parentArticle.title)
     article = Article.objects.create(creator=webuser)
     article.content = content
     article.parentID =parentArticle
@@ -291,5 +340,121 @@ def jiereply(request):
     result = {
         "status": 0,
         "msg": 'sussess'
+    }
+    return HttpResponse(json.dumps(result))
+def collection(request,type):
+    user = request.user
+    webuser = Webuser.objects.get(user_id=user.id)
+    aid=request.POST['cid']
+    if type=="add/":
+        article=Article.objects.get(aid=aid)
+        webuser.collection.add(article)
+        webuser.save()
+        result = {
+            "status": 0,
+            "msg": "收藏成功"
+        }
+    elif type=="remove/":
+        article = Article.objects.get(aid=aid)
+        webuser.collection.remove(article)
+        webuser.save()
+        result = {
+            "status": 0,
+            "msg": "取消收藏成功"
+        }
+    else:
+        result = {
+            "status": 1,
+            "msg": "收藏失败"
+        }
+    return HttpResponse(json.dumps(result))
+def jieda(request,type):
+    user = request.user
+    webuser = Webuser.objects.get(user_id=user.id)
+    aid = request.POST['id']
+    article = Article.objects.get(aid=aid)
+    if type== 'zan/':
+        article.attach.clicks+=1
+        article.attach.save()
+        result = {
+            "status": 0,
+            "msg": "点赞失败"
+        }
+        return HttpResponse(json.dumps(result))
+    if type=='accept/':
+        article.attach.isPicked=1
+        article.parentID.attach.isFinish=1
+        article.parentID.attach.save()
+        article.attach.save()
+        result = {
+            "status": 0,
+            "msg": "采纳成功"
+        }
+        return HttpResponse(json.dumps(result))
+    if type=='delete/':
+        article.delete()
+        article.parentID.attach.replys-=1
+        article.parentID.attach.save()
+        result = {
+            "status": 0,
+            "msg": "删除成功"
+        }
+        return HttpResponse(json.dumps(result))
+    if type == 'getDa/':
+        rows={}
+        rows["content"]=article.content
+        result = {
+            "status": 0,
+            "msg": "获取回复数据",
+            "rows":rows
+        }
+        return HttpResponse(json.dumps(result))
+    if type == 'updateDa/':
+        article.content=request.POST['content']
+        article.save()
+        result = {
+            "status": 0,
+            "msg": "更新回复"
+        }
+        return HttpResponse(json.dumps(result))
+    if type =='set/':
+        rank=request.POST['rank']
+        field=request.POST['field']
+        print(field)
+        print(rank)
+
+        if field == 'stick':
+            if rank == '1':
+                print("置顶")
+                article.attach.isTop = 1
+            else:
+                print("取消置顶")
+                article.attach.isTop = 0
+        if field == 'status':
+            if rank == '1':
+                print("加精")
+                article.attach.isPicked=1
+            else:
+                print("取消加精")
+                article.attach.isPicked=0
+        article.attach.save()
+        result = {
+            "status": 0,
+        }
+        return HttpResponse(json.dumps(result))
+def jiedelete(request):
+    print("删除文章")
+    aid=request.POST['id']
+    print(aid)
+    webuser = Webuser.objects.get(user_id=request.user.id)
+    articel=Article.objects.get(aid=aid)
+    try:
+        articel.delete()
+        msg=""
+    except:
+        msg="删除失败"
+    result = {
+        "status": 0,
+        "msg": msg
     }
     return HttpResponse(json.dumps(result))

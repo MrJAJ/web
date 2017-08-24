@@ -97,6 +97,7 @@
   </p>
 </div>
 <script src="{% static 'layui/layui.js' %}"></script>
+
 <script src="{% static 'mods/jie.js' %}"></script>
 <script src="{% static 'mods/user.js' %}"></script>
 <script>
@@ -153,7 +154,7 @@ layui.cache.user = {
   ,sex: {{ webuser.sex }}
 };
 layui.config({
-  version: "1.1.0"
+  version: "1.0.1"
   ,base: '{% static 'mods/' %}'
 }).extend({
   fly: 'index'

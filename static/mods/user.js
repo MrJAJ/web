@@ -38,12 +38,12 @@ layui.define(['laypage', 'fly', 'element'], function(exports){
           {{# if(d.rows[i].status == 1){ }}\
           <span class="fly-jing">精</span>\
           {{# } }}\
-          {{# if(d.rows[i].accept >= 0){ }}\
+          {{# if(d.rows[i].accept = 1){ }}\
           <span class="jie-status jie-status-ok">已解决</span>\
           {{# } }}\
           <a class="jie-title" href="/jie/detail/{{d.rows[i].id}}" target="_blank">{{= d.rows[i].title}}</a>\
           <i>{{new Date(d.rows[i].time).toLocaleString()}}</i>\
-          {{# if(d.rows[i].accept == -1){ }}\
+          {{# if(d.rows[i].accept == 0){ }}\
           <a class="mine-edit" href="/jie/edit/{{d.rows[i].id}}">编辑</a>\
           {{# } }}\
           <em>{{d.rows[i].hits}}阅/{{d.rows[i].comment}}答</em>\

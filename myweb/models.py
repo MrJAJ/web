@@ -11,6 +11,7 @@ class Webuser(models.Model):
     sex=models.IntegerField(default=0)#0为男，1为女
     qq=models.TextField(max_length=12,blank=True,null=True)
     weibo=models.TextField(max_length=50,blank=True,null=True)
+    collection=models.ManyToManyField('Article')
     def __unicode__(self):
         return  self.user.username
 class Category(models.Model):

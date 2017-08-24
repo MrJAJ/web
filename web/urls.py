@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^404', myview.h404, name='404'),
     url(r'^jie/page/(\d+)$', myview.jieindex, name='jieindex'),
     url(r'^jie/detail/(.+)$', myview.jiedetail, name='jiedetail'),
+    url(r'^jie/delete', myview.jiedelete, name='jiedelete'),
     url(r'^jieadd', myview.jieadd, name='jieadd'),
     url(r'^userindex', myview.userindex, name='userindex'),
     url(r'^userhome/(.+)$', myview.userhome, name='userhome'),
@@ -41,4 +42,7 @@ urlpatterns = [
     url(r'^api/mine-jie', myview.myArticle, name='jiemine'),
     url(r'^collection/find', myview.myCollection, name='myCollection'),
     url(r'^jie/reply', myview.jiereply, name='jiereply'),
+    url(r'^collection/(.+)$', myview.collection, name='collection'),
+    url(r'^api/jieda/(.+)$', myview.jieda, name='jieda'),
+    url(r'^jietie/(.+)/(\d+)$', myview.jietie, name='jietie'),
 ]
