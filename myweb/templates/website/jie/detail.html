@@ -65,9 +65,11 @@
             {% endif %}
         {% endif %}
           <div class="fly-list-hint">
+            <i class="layui-icon" title="点赞">&#xe600;</i> {{ article.attach.votes.count }}
             <i class="iconfont" title="回答">&#xe60c;</i> {{ article.attach.replys }}
             <i class="iconfont" title="人气">&#xe60b;</i> {{ article.attach.clicks }}
           </div>
+
         </div>
         <div class="detail-about">
           <a class="jie-user" href="{% url 'userhome' article.creator.user.id%}">
@@ -90,6 +92,18 @@
 
           <div class="detail-body" style="margin:20px;" id="content">
         </div>
+      <ul class="jieda photos">
+      <li data-id="{{ article.aid }}" class="jieda-daan">
+      <div class="jieda-reply">
+        {% with flag=article.attach.votes.all%}
+            {% if webuser in flag%}
+              <span class="jieda-zan zanok" type="zan"><i class="layui-icon">&#xe600;</i><em>{{ flag.count }}</em></span>
+            {% else %}
+                <span class="jieda-zan" type="zan"><i class="layui-icon">&#xe600;</i><em>{{ flag.count }}</em></span>
+            {% endif %}{% endwith %}
+        </div>
+      </li>
+      </ul>
       </div>
 
       <div class="fly-panel detail-box" style="padding-top: 0;">
@@ -128,7 +142,12 @@
               </script>
             </div>
             <div class="jieda-reply">
-              <span class="jieda-zan" type="zan"><i class="iconfont icon-zan"></i><em>{{ reply.attach.clicks }}</em></span>
+            {% with flag=reply.attach.votes.all%}
+            {% if webuser in flag%}
+              <span class="jieda-zan zanok" type="zan"><i class="iconfont icon-zan"></i><em>{{ reply.attach.clicks }}</em></span>
+            {% else %}
+                <span class="jieda-zan" type="zan"><i class="iconfont icon-zan"></i><em>{{ reply.attach.clicks }}</em></span>
+            {% endif %}{% endwith %}
               <span type="reply"><i class="iconfont icon-svgmoban53"></i>回复</span>
                 {% if webuser.user.is_superuser == 1 %}
                <div class="jieda-admin">
@@ -163,81 +182,31 @@
     </div>
   </div>
   </div>
-</div>
+
 
   <div class="edge">
+
     <dl class="fly-panel fly-list-one">
       <dt class="fly-panel-title">最近热帖</dt>
+        {% for article in mlarticles%}
       <dd>
-        <a href="">使用 layui 秒搭后台大布局（基本结构）</a>
-        <span><i class="iconfont">&#xe60b;</i> 6087</span>
+        <a href="{% url 'jiedetail' article.0 %}">{{ article.1 }}</a>
+        <span><i class="iconfont">&#xe60b;</i> {{ article.2 }}</span>
       </dd>
-      <dd>
-        <a href="">Java实现LayIM后端的核心代码</a>
-        <span><i class="iconfont">&#xe60b;</i> 767</span>
-      </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局（基本结构）</a>
-        <span><i class="iconfont">&#xe60b;</i> 6087</span>
-      </dd>
-      <dd>
-        <a href="">Java实现LayIM后端的核心代码</a>
-        <span><i class="iconfont">&#xe60b;</i> 767</span>
-      </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局（基本结构）</a>
-        <span><i class="iconfont">&#xe60b;</i> 6087</span>
-      </dd>
-      <dd>
-        <a href="">Java实现LayIM后端的核心代码</a>
-        <span><i class="iconfont">&#xe60b;</i> 767</span>
-      </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局（基本结构）</a>
-        <span><i class="iconfont">&#xe60b;</i> 6087</span>
-      </dd>
-      <dd>
-        <a href="">Java实现LayIM后端的核心代码</a>
-        <span><i class="iconfont">&#xe60b;</i> 767</span>
-      </dd>
+        {% endfor %}
     </dl>
 
     <dl class="fly-panel fly-list-one">
       <dt class="fly-panel-title">近期热议</dt>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
+        {% for article in mrarticles %}
+        <dd>
+        <a href="{% url 'jiedetail' article.0 %}">{{ article.1 }}</a>
+        <span><i class="iconfont">&#xe60c;</i> {{ article.2 }}</span>
       </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
-      <dd>
-        <a href="">使用 layui 秒搭后台大布局之基本结构</a>
-        <span><i class="iconfont">&#xe60c;</i> 96</span>
-      </dd>
+        {% endfor %}
     </dl>
   </div>
+</div>
     <script src="{% static 'layui/layui.js' %}"></script>
     <script src="{% static 'mods/face.js' %}"></script>
     <script>

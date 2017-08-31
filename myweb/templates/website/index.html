@@ -50,6 +50,7 @@
             </script></span>
             <span>{{ article.Article_Category.values_list.0.1 }}</span>
             <span class="fly-list-hint">
+              <i class="layui-icon" title="点赞">&#xe600;</i> {{ article.attach.votes.count }}
               <i class="iconfont" title="回答">&#xe60c;</i> {{ article.attach.replys }}
               <i class="iconfont" title="人气">&#xe60b;</i> {{ article.attach.clicks }}
             </span>
@@ -85,6 +86,7 @@
             </script></span>
             <span>{{ article.Article_Category.values_list.0.1 }}</span>
             <span class="fly-list-hint">
+              <i class="layui-icon" title="点赞">&#xe600;</i> {{ article.attach.votes.count }}
               <i class="iconfont" title="回答">&#xe60c;</i> {{ article.attach.replys }}
               <i class="iconfont" title="人气">&#xe60b;</i> {{ article.attach.clicks }}
             </span>

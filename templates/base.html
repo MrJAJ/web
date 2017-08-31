@@ -36,7 +36,7 @@
 </head>
 <body>
 
-{% if messages %}
+{% if messages %}<!--提示信息-->
 
 <ul style="align-content: center">
 
@@ -85,7 +85,7 @@
   </div>
 </div>
 
-{% block content %}{% endblock %}
+{% block content %}{% endblock %}<!--内容主体-->
 
 
 <div class="footer">
@@ -96,12 +96,11 @@
     <a href="http://fly.layui.com/jie/2461.html" target="_blank">微信公众号</a>
   </p>
 </div>
-<script src="{% static 'layui/layui.js' %}"></script>
-
+<script src="{% static 'layui/layui.js' %}"></script><!--该JS会获取其他的js文件-->
 <script src="{% static 'mods/jie.js' %}"></script>
 <script src="{% static 'mods/user.js' %}"></script>
 <script>
-    function getCookie(c_name)
+    function getCookie(c_name)//获取cookie
 {
 if (document.cookie.length>0)
   {
@@ -116,27 +115,25 @@ if (document.cookie.length>0)
   }
 return ""
 }
-    var acookie=getCookie("fly-style");
+    var acookie=getCookie("fly-style");//当前网站风格
     var style=document.getElementById("style");
-    if(acookie=='stretch'){
+    if(acookie=='stretch'){//宽屏载入宽屏css
     style.setAttribute('href', '{% static 'css/full.css' %}');
-
    }
 </script>
 <script>
-    var data ={{ result|safe }};
-    if (data["num"]){
+    var data ={{ result|safe }};//服务器返回数据
+    if (data["num"]){//分页
         layui.define(['laypage', 'layer'], function () {
             var laypage = layui.laypage
                 , layer = layui.layer;
             laypage({
-                cont: 'demo'
-                , pages: data["num"]
+                cont: 'demo'//变迁ID
+                , pages: data["num"]//总页数
                 , skin: 'fly'
-                , curr: data["curr"]
+                , curr: data["curr"]//当前页
                 , jump: function (e, first) {
                     if (!first) {
-                        console.log('第 ' + e.curr + ' 页');
                         location.href = '/jie/page/'+e.curr;
                     }
                 }
@@ -145,17 +142,18 @@ return ""
     }
 </script>
 <script>
-layui.cache.page = '';
-layui.cache.user = {
+layui.cache.page = '';//可通过设置此项参入特定js
+layui.cache.user = {//用户缓存信息
   username: '{{ request.user.username }}'
   ,uid: {{ request.user.id }}
   ,avatar: '/{{ webuser.avatar }}'
   ,experience: {{ webuser.score }}
   ,sex: {{ webuser.sex }}
 };
+
 layui.config({
   version: "1.0.1"
-  ,base: '{% static 'mods/' %}'
+  ,base: '{% static 'mods/' %}'//js文件所在目录
 }).extend({
   fly: 'index'
 }).use('fly');

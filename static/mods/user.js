@@ -3,7 +3,7 @@
  @Name: 用户模块
 
  */
- 
+ //用户设置相关js
 layui.define(['laypage', 'fly', 'element'], function(exports){
 
   var $ = layui.jquery;

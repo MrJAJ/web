@@ -3,7 +3,7 @@
  @Name: Fly社区主入口
 
  */
- 
+ //主要js，
 
 layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(exports){
 
@@ -19,7 +19,7 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
   if(device.ie && device.ie < 8){
     layer.alert('如果您非得使用ie浏览Fly社区，那么请使用ie8+');
   }
-  
+  //在光标位置处插入数据
   layui.focusInsert = function(obj, str){
     var result, val = obj.value;
     obj.focus();
@@ -36,12 +36,11 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
   
   var gather = {
      
-    //Ajax
+    //Ajax 发送表单数据
     json: function(url, data, success, options){
       var that = this;
       options = options || {};
       data = data || {};
-      console.log(url);
       return $.ajax({
         type: options.type || 'post',
         dataType: options.dataType || 'json',
@@ -59,6 +58,7 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
         }
       });
     },
+      //发送请求
     jsonn: function(url, data, success, options){
       var that = this;
       options = options || {};
@@ -69,19 +69,17 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
         data: data,
         url: url,
         success: function(res){
-          console.log(res.status);
           if(res.status === 0) {
             success && success(res);
           } else {
             layer.msg(res.msg||res.code, {shift: 6});
           }
         }, error: function(xhr,err){
-          console.log(xhr);
           options.error || layer.msg('请求异常，请重试hahahahah', {shift: 6});
         }
       });
     }
-     //多久前
+     //计算多久前
     ,time: function(time, brief){
       var stamp = new Date().getTime() - time;
       if(stamp > 1000*60*60*24*30){
@@ -263,7 +261,7 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
       });
       
     }
-
+    //转义<,>,',"等字符
     ,escape: function(html){
       return String(html||'')
           .replace(/&(?!#?[a-zA-Z0-9]+;)/g, '&amp;')
@@ -295,19 +293,19 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
     }
     
     //新消息通知
-      /*
+
     ,newmsg: function(){
       if(layui.cache.user.uid !== -1){
-        gather.json('/message/nums/', {
+        gather.jsonn('/message/nums/', {
           _: new Date().getTime()
         }, function(res){
           if(res.status === 0 && res.count > 0){
             var msg = $('<a class="nav-message" href="javascript:;" title="您有'+ res.count +'条未阅读的消息">'+ res.count +'</a>');
             $('.nav-user').append(msg);
             msg.on('click', function(){
-              gather.json('/message/read', {}, function(res){
+              gather.jsonn('/message/read/', {}, function(res){
                 if(res.status === 0){
-                  location.href = '/user/message/';
+                  location.href = '/usermessage/';
                 }
               });
             });
@@ -316,11 +314,11 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
       }
       return arguments.callee;
     }
-*/
+
     ,cookie: function(e,o,t){
       e=e||"";var n,i,r,a,c,p,s,d,u;if("undefined"==typeof o){if(p=null,document.cookie&&""!=document.cookie)for(s=document.cookie.split(";"),d=0;d<s.length;d++)if(u=$.trim(s[d]),u.substring(0,e.length+1)==e+"="){p=decodeURIComponent(u.substring(e.length+1));break}return p}t=t||{},null===o&&(o="",t.expires=-1),n="",t.expires&&("number"==typeof t.expires||t.expires.toUTCString)&&("number"==typeof t.expires?(i=new Date,i.setTime(i.getTime()+864e5*t.expires)):i=t.expires,n="; expires="+i.toUTCString()),r=t.path?"; path="+t.path:"",a=t.domain?"; domain="+t.domain:"",c=t.secure?"; secure":"",document.cookie=[e,"=",encodeURIComponent(o),n,r,a,c].join("");
     }
- //插入右下角悬浮bar
+ //插入右下角悬浮bar，即网站风格切换，TOP
     ,rbar: function(){
       var style = $('head').find('.fly-style'), skin = {
         stretch: 'charushuipingxian'
@@ -360,7 +358,7 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
       };
       $('body').append(html);
 
-      //事件
+      //事件响应
       html.find('li').on('click', function(){
         var othis = $(this), method = othis.attr('method');
         dict[method].call(this, othis);
@@ -433,7 +431,7 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
   });
 */
   //新消息通知
-  //gather.newmsg();
+  gather.newmsg();
 
   //发送激活邮件
   gather.activate = function(email){
@@ -464,12 +462,8 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
 
   //表单提交
   form.on('submit(*)', function(data){
-    console.log("tijia");
     var action = $(data.form).attr('action'), button = $(data.elem);
-    console.log(action);
     gather.jsonn(action, data.field, function(res){
-      console.log("tijiaofanhui"+res);
-      console.log(res.status);
       var end = function(){
         if(res.action){
           location.href = res.action;
@@ -510,19 +504,14 @@ layui.define(['layer','laypage','laytpl', 'form', 'upload', 'util'], function(ex
     return false;
   });
 
-  //加载特定模块
+  //加载特定模块。base中的layui.cache.page 指定
   if(layui.cache.page && layui.cache.page !== 'index'){
     var extend = {};
     extend[layui.cache.page] = layui.cache.page;
     layui.extend(extend);
     layui.use(layui.cache.page);
-    console.log("加载特定模块");
   }
-  
-  //加载IM
-  if(!device.android && !device.ios){
-    //layui.use('im');
-  }
+
 
   //加载编辑器
   gather.layEditor({

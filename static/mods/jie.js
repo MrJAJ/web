@@ -3,7 +3,7 @@
  @Name: 求解板块
 
  */
- 
+ //主要为回复时所用js
 layui.define(['laypage', 'fly'], function(exports){
 
   var $ = layui.jquery;
@@ -36,14 +36,13 @@ layui.define(['laypage', 'fly'], function(exports){
         {{ d.content}}\
       </div>\
     </li>'
-    data.content = fly.content(data.content);
+    data.content = fly.content(data.content);//转义内容
     laytpl(tpl).render($.extend(data, {
       user: layui.cache.user
     }), function(html){
       required[0].value = '';
       dom.jieda.find('.fly-none').remove();
       dom.jieda.append(html);
-      
       var count = dom.jiedaCount.text()|0;
       dom.jiedaCount.html(++count);
     });
@@ -99,20 +98,21 @@ layui.define(['laypage', 'fly'], function(exports){
     gather.jieAdmin[type].call(this, othis.parent());
   });
 
-  //异步渲染
+  //异步渲染 在贴息信息页面判断帖子是否被收藏
+    /*
   var asyncRender = function(){
     var div = $('.fly-detail-hint'), jieAdmin = $('#LAY_jieAdmin');
     //查询帖子是否收藏
     if(jieAdmin[0] && layui.cache.user.uid != -1){
       console.log("异步渲染");
-      fly.json('/collection/find/', {
+      fly.jsonn('/collection/find/', {
         cid: div.data('id')
       }, function(res){
         jieAdmin.append('<span class="layui-btn layui-btn-mini jie-admin '+ (res.data.collection ? 'layui-btn-danger' : '') +'" type="collect" data-type="'+ (res.data.collection ? 'remove' : 'add') +'">'+ (res.data.collection ? '取消收藏' : '收藏') +'</span>');
       });
     }
   }();
-
+*/
   //解答操作
   gather.jiedaActive = {
     zan: function(li){ //赞
@@ -133,7 +133,7 @@ layui.define(['laypage', 'fly'], function(exports){
     ,reply: function(li){ //回复
       var val = dom.content.val();
       var aite = '@'+ li.find('.jie-user cite i').text().replace(/\s/g, '');
-      dom.content.focus()
+      dom.content.focus();
       if(val.indexOf(aite) !== -1) return;
       dom.content.val(aite +' ' + val);
     }

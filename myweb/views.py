@@ -21,65 +21,62 @@ def tips(request):
 def h404(request):
     return render(request, 'website/404.html')
 def index(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated():#用户已认证
         attch=Attachment.objects.filter(isTop=1)
-        pickedArticles=Article.objects.filter(parentID=0).filter(attach=attch)
+        pickedArticles=Article.objects.filter(parentID=0).filter(attach=attch)#获取指置顶文章
         articles = Article.objects.filter(parentID=0).exclude(attach=attch)
-        webuser = Webuser.objects.get(user_id=request.user.id)
-        sql = 'select aid,title,clicks from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY clicks DESC LIMIT 10'
+        webuser = Webuser.objects.get(user_id=request.user.id)#获取当前用户
+        sql = 'select aid,title,clicks from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY clicks DESC LIMIT 10'#获取10个最近热帖
         cursor = connection.cursor()
         cursor.execute(sql)
         mlarticles = cursor.fetchall()
-
-
-        sql2='select aid,title,replys from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY replys DESC LIMIT 10'
+        sql2='select aid,title,replys from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY replys DESC LIMIT 10'#获取10个最近热议
         cursor=connection.cursor()
         cursor.execute(sql2)
         mrarticles=cursor.fetchall()
-        us=Article.objects.exclude(parentID=0).values('creator_id').annotate(num_replys=Count('creator_id')).values('creator','num_replys').order_by('-num_replys')[0:10]
+        us=Article.objects.exclude(parentID=0).values('creator_id').annotate(num_replys=Count('creator_id')).values('creator','num_replys').order_by('-num_replys')[0:12]#获取12个回答榜用户
         users=[]
         for u in us:
             user={}
-            user['creator']=Webuser.objects.get(id=u['creator'])
-            user['num']=u['num_replys']
+            user['creator']=Webuser.objects.get(id=u['creator'])#回答榜用户信息
+            user['num']=u['num_replys']#回复数
             users.append(user)
         return render(request, 'website/index.html',{'webuser':webuser,"pickedArticles":pickedArticles,"articles":articles,"mlarticles":mlarticles,"mrarticles":mrarticles,"users":users})
     else:
         return render(request, 'website/user/login.html')
 def jieindex(request,page=1):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated():#用户认证
         page=int(page)
-        webuser = Webuser.objects.get(user_id=request.user.id)
-        num=Article.objects.filter(parentID=0).count()
-        num=int(num/10)+1
-        start=10*(page-1)
-        end=start+10
-        articles=Article.objects.filter(parentID=0).order_by("pubTime").order_by("-attach__isTop")[start:end]
-        print(str(articles.query))
+        webuser = Webuser.objects.get(user_id=request.user.id)#获取用户
+        num=Article.objects.filter(parentID=0).count()#获取文章总数
+        num=int(num/10)+1#总页数
+        start=10*(page-1)#起始页
+        end=start+10#结束页
+        articles=Article.objects.filter(parentID=0).order_by("pubTime").order_by("-attach__isTop")[start:end]#获取始末区间文章
         result={
-            "curr":page,
-            "num":num
+            "curr":page,#当前页
+            "num":num#总页数
         }
         return render(request, 'website/jie/index.html',{'webuser':webuser,"articles":articles,'result':json.dumps(result)})
     else:
         return render(request, 'website/user/login.html')
 def jietie(request,type,page=1):
-    if request.user.is_authenticated():
-        webuser=Webuser.objects.get(user=request.user)
+    if request.user.is_authenticated():#用户认证
+        webuser=Webuser.objects.get(user=request.user)#用户
         page = int(page)
         start = 10 * (page - 1)
         end = start + 10
         articles=[]
         num=0
-        if type == 'unsolved':
+        if type == 'unsolved':#获取未结贴文章
             articles = Article.objects.filter(parentID=0).filter(attach__isFinish=0).order_by('pubTime').order_by("-attach__isTop")[start:end]
             num = articles.count()
             num = int(num / 10) + 1
-        if type == 'solved':
+        if type == 'solved':#获取已结贴文章
             articles = Article.objects.filter(parentID=0).filter(attach__isFinish=1).order_by('pubTime').order_by("-attach__isTop")[start:end]
             num = articles.count()
             num = int(num / 10) + 1
-        if type == 'picked':
+        if type == 'picked':#获取精贴
             articles = Article.objects.filter(parentID=0).filter(attach__isPicked=1).order_by('pubTime').order_by("-attach__isTop")[start:end]
             num = articles.count()
             num = int(num / 10) + 1
@@ -93,23 +90,31 @@ def jietie(request,type,page=1):
         return render(request, 'website/user/login.html')
 def jiedetail(request,aid):
     webuser = Webuser.objects.get(user_id=request.user.id)
-    if aid == '0':
+    if aid == '0':#游客
         return render(request, 'website/404.html', {'webuser': webuser})
     else:
-        replys = Article.objects.filter(parentID=aid).order_by('pubTime')
-        article=Article.objects.get(aid=aid)
-        attch = Attachment.objects.get(id=article.attach.id)
-        attch.clicks += 1
+        replys = Article.objects.filter(parentID=aid).order_by('pubTime')#获取该文章的回复信息
+        article=Article.objects.get(aid=aid)#获取文章
+        attch = Attachment.objects.get(id=article.attach.id)#获取文章附件信息
+        attch.clicks += 1#文章阅览数加1
         attch.save()
         article.attach=attch
         for reply in replys:
             reply.content=json.dumps(reply.content)
         result={
-            "content":article.content,
+            "content":article.content,#文章内容
             "status":0,
         }
-        return render(request, 'website/jie/detail.html',{'webuser':webuser, 'replys':replys, "article":article,"result":json.dumps(result)})
-def jieadd(request):
+        sql = 'select aid,title,clicks from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY clicks DESC LIMIT 10'#获取最近热帖
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        mlarticles = cursor.fetchall()
+        sql2 = 'select aid,title,replys from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY replys DESC LIMIT 10'#最近热议
+        cursor = connection.cursor()
+        cursor.execute(sql2)
+        mrarticles = cursor.fetchall()
+        return render(request, 'website/jie/detail.html',{'webuser':webuser, 'replys':replys, "article":article,"mlarticles":mlarticles,"mrarticles":mrarticles,"result":json.dumps(result)})
+def jieadd(request):#添加文章
     webuser = Webuser.objects.get(user_id=request.user.id)
     title = request.POST.get('title')
     if title:
@@ -130,30 +135,38 @@ def jieadd(request):
             "status": 0
         }
         replys = Article.objects.filter(parentID=article.aid).order_by('pubTime')
-        return render(request, 'website/jie/detail.html', {'webuser': webuser, 'replys': replys, "article":article,"result":json.dumps(result)})
+        sql = 'select aid,title,clicks from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY clicks DESC LIMIT 10'  # 获取最近热帖
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        mlarticles = cursor.fetchall()
+        sql2 = 'select aid,title,replys from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY replys DESC LIMIT 10'  # 最近热议
+        cursor = connection.cursor()
+        cursor.execute(sql2)
+        mrarticles = cursor.fetchall()
+        return render(request, 'website/jie/detail.html', {'webuser': webuser, 'replys': replys, "article":article,"result":json.dumps(result),"mlarticles":mlarticles,"mrarticles":mrarticles})
     else:
         category=Category.objects.all()
         return render(request, 'website/jie/add.html',{'webuser':webuser,'category':category})
-def userindex(request):
+def userindex(request):#用户中心
     webuser = Webuser.objects.get(user_id=request.user.id)
     return render(request, 'website/user/index.html',{'webuser':webuser})
-def userhome(request,uid):
+def userhome(request,uid):#用户主页
     webuser = Webuser.objects.get(user_id=request.user.id)
     try:
-        us=User.objects.get(username=uid)
+        us=User.objects.get(username=uid)#按用户名获取用户
     except:
-        us=User.objects.get(id=uid)
+        us=User.objects.get(id=uid)#按id获取用户a
     user=Webuser.objects.get(user=us)
-    articles=Article.objects.filter(creator=user).filter(parentID=0).order_by('-pubTime')
-    replys=Article.objects.filter(creator=user).exclude(parentID=0).order_by('-pubTime')[0:5]
+    articles=Article.objects.filter(creator=user).filter(parentID=0).order_by('-pubTime')#用户发表文章
+    replys=Article.objects.filter(creator=user).exclude(parentID=0).order_by('-pubTime')[0:5]#用户发表回复
     for reply in replys:
         reply.content = json.dumps(reply.content)
     return render(request, 'website/user/home.html',{'webuser':webuser,'user':user,'articles':articles,"replys":replys})
-def userset(request):
+def userset(request):#用户设置，尚未对密码进行判断，只进行密码比对
     user = request.user
-    nowpass = request.POST.get("nowpass")
-    sign=request.POST.get("sign")
-    if nowpass is not None and sign is None:
+    nowpass = request.POST.get("nowpass")#当前密码
+    sign=request.POST.get("sign")#验证
+    if nowpass is not None and sign is None:#密码修改
         password = request.POST.get("pass")
         if user.check_password(nowpass):
             messages.success(request,"密码修改成功")
@@ -165,7 +178,7 @@ def userset(request):
             messages.error(request,"当前密码错误")
             webuser = Webuser.objects.get(user_id=request.user.id)
             return render(request, 'website/user/set.html', {'webuser': webuser})
-    if nowpass is None and sign is not None:
+    if nowpass is None and sign is not None:#用户信息修改
         email=request.POST.get("email")
         username=request.POST.get("username")
         city=request.POST.get("city")
@@ -179,8 +192,10 @@ def userset(request):
         user.username=username
         user.email=email
         user.save()
-        messages.success(request,"资料修改成功")
-        return render(request, 'website/user/set.html', {'webuser': webuser})
+        result = {
+            'status': 0,
+        }
+        return HttpResponse(json.dumps(result))
     else:
         webuser = Webuser.objects.get(user_id=request.user.id)
         return render(request, 'website/user/set.html',{'webuser':webuser})
@@ -192,7 +207,7 @@ def useractivate(request):
 def userforget(request):
     return render(request, 'website/user/forget.html')
 def userlogin(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated():#用户已认证
         return HttpResponse("用户已登录")
     if request.method == 'POST':
         form=LoginForm(request.POST)
@@ -202,9 +217,28 @@ def userlogin(request):
             user=authenticate(username=username,password=password)
             if user:
                 login(request,user)
-                articles = Article.objects.filter(parentID=0)
+                attch = Attachment.objects.filter(isTop=1)
+                pickedArticles = Article.objects.filter(parentID=0).filter(attach=attch)  # 获取指置顶文章
+                articles = Article.objects.filter(parentID=0).exclude(attach=attch)
                 webuser = Webuser.objects.get(user_id=request.user.id)
-                return render(request, 'website/index.html', {'webuser': webuser, "articles": articles})
+                sql = 'select aid,title,clicks from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY clicks DESC LIMIT 10'  # 获取10个最近热帖
+                cursor = connection.cursor()
+                cursor.execute(sql)
+                mlarticles = cursor.fetchall()
+                sql2 = 'select aid,title,replys from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY replys DESC LIMIT 10'  # 获取10个最近热议
+                cursor = connection.cursor()
+                cursor.execute(sql2)
+                mrarticles = cursor.fetchall()
+                us = Article.objects.exclude(parentID=0).values('creator_id').annotate(
+                    num_replys=Count('creator_id')).values('creator', 'num_replys').order_by('-num_replys')[
+                     0:12]  # 获取12个回答榜用户
+                users = []
+                for u in us:
+                    user = {}
+                    user['creator'] = Webuser.objects.get(id=u['creator'])  # 回答榜用户信息
+                    user['num'] = u['num_replys']  # 回复数
+                    users.append(user)
+                return render(request, 'website/index.html',{'webuser': webuser, "pickedArticles": pickedArticles, "articles": articles, "mlarticles": mlarticles, "mrarticles": mrarticles, "users": users})
             else:
                 return render(request, 'website/user/login.html')
         else:
@@ -224,14 +258,12 @@ def userreg(request):
             webuser=Webuser(user=user)
             webuser.save()
             return render(request, 'website/user/login.html')
-        else:
-            print("user is null")
     else:
         return render(request, 'website/user/reg.html')
 def userlogout(request):
-    logout(request)
+    logout(request)#取消用户认证
     return render(request, 'website/user/login.html')
-def upload_avatar(request):
+def upload_avatar(request):#头像上传
     file=request.FILES['file']
     filepath=open(os.path.join("static/images/avatar/", file.name), 'wb+')
     webuser = Webuser.objects.get(user_id=request.user.id)
@@ -246,7 +278,7 @@ def upload_avatar(request):
         "msg":"头像上传成功"
     }
     return HttpResponse(json.dumps(result))
-def upload_img(request):
+def upload_img(request):#图像上传
     file=request.FILES['file']
     filepath=open(os.path.join("static/images/images/", file.name), 'wb+')
     for chunk in file.chunks():  # 分块写入文件
@@ -258,14 +290,14 @@ def upload_img(request):
         "msg":"图像上传成功"
     }
     return HttpResponse(json.dumps(result))
-def jieedit(request,aid):
+def jieedit(request,aid):#文章修改，aid为文章标识
     webuser = Webuser.objects.get(user_id=request.user.id)
-    if aid != '0':
+    if aid != '0':#跳转文章编辑页面
         article = Article.objects.get(aid=aid)
-        category = Category.objects.all()
-        category_id=article.Article_Category.all().values('cid')
+        category = Category.objects.all()#分类列表
+        category_id=article.Article_Category.all().values('cid')#文章分类
         return render(request, 'website/jie/edit.html',{'webuser':webuser, 'article': article,'category':category})
-    else:
+    else:#编辑文章
         title = request.POST.get('title')
         content = request.POST.get('content')
         category = request.POST.get('class')
@@ -276,13 +308,24 @@ def jieedit(request,aid):
         article.score = experience
         article.Article_Category = category
         article.save()
+        # 获取该文章的回复信息
         replys = Article.objects.filter(parentID=int(request.POST.get('articleId'))).order_by('pubTime')
+        for reply in replys:
+            reply.content=json.dumps(reply.content)
         result = {
             "content": article.content,
             "status": 0
         }
-        return  render(request, 'website/jie/detail.html', {'webuser': webuser, 'replys': replys, "article":article,"result":json.dumps(result)})
-def myArticle(request):
+        sql = 'select aid,title,clicks from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY clicks DESC LIMIT 10'  # 获取最近热帖
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        mlarticles = cursor.fetchall()
+        sql2 = 'select aid,title,replys from myweb_article,myweb_attachment WHERE attach_id=id and parentID_id=0 ORDER BY replys DESC LIMIT 10'  # 最近热议
+        cursor = connection.cursor()
+        cursor.execute(sql2)
+        mrarticles = cursor.fetchall()
+        return  render(request, 'website/jie/detail.html', {'webuser': webuser, 'replys': replys, "article":article,"mlarticles":mlarticles,"mrarticles":mrarticles,"result":json.dumps(result)})
+def myArticle(request):#我发的贴
     user=request.user
     page=int(request.POST['page'])
     start = 10 * (page - 1)
@@ -297,17 +340,17 @@ def myArticle(request):
         row['title']=article.title
         row['status']=article.attach.isPicked#是否加精
         row['accept']=article.attach.isFinish#是否已解决
-        row['time']=str(article.pubTime)
-        row['comment']=article.attach.replys
-        row['hits']=article.attach.clicks
+        row['time']=str(article.pubTime)#发布时间
+        row['comment']=article.attach.replys#评论数
+        row['hits']=article.attach.clicks#阅览数
         rows.append(row)
     result={
         "status":0,
         "rows":rows,
-        "num":num
+        "num":num#发帖文章总数
     }
     return HttpResponse(json.dumps(result))
-def myCollection(request):
+def myCollection(request):#我的收藏
     user=request.user
     webuser = Webuser.objects.get(user_id=user.id)
     articles = webuser.collection.all()
@@ -323,10 +366,10 @@ def myCollection(request):
         "rows": rows
     }
     return HttpResponse(json.dumps(result))
-def jiereply(request):
+def jiereply(request):##文章回复
     webuser = Webuser.objects.get(user_id=request.user.id)
     content = request.POST.get('content')
-    jid=request.POST.get('jid')
+    jid=request.POST.get('jid')#回复文章ID
     parentArticle=Article.objects.get(aid=jid)
     article = Article.objects.create(creator=webuser)
     article.content = content
@@ -346,7 +389,7 @@ def collection(request,type):
     user = request.user
     webuser = Webuser.objects.get(user_id=user.id)
     aid=request.POST['cid']
-    if type=="add/":
+    if type=="add/":#添加收藏
         article=Article.objects.get(aid=aid)
         webuser.collection.add(article)
         webuser.save()
@@ -354,7 +397,7 @@ def collection(request,type):
             "status": 0,
             "msg": "收藏成功"
         }
-    elif type=="remove/":
+    elif type=="remove/":#取消收藏
         article = Article.objects.get(aid=aid)
         webuser.collection.remove(article)
         webuser.save()
@@ -374,14 +417,25 @@ def jieda(request,type):
     aid = request.POST['id']
     article = Article.objects.get(aid=aid)
     if type== 'zan/':
-        article.attach.clicks+=1
-        article.attach.save()
+        flag=article.attach.votes.filter(id=webuser.id)#当前用户是否已点赞
+        msg=""
+        if flag:#已点赞
+            article.attach.votes.remove(webuser)#取消点赞
+            article.attach.clicks -= 1
+            article.attach.save()
+        else:
+            article.attach.clicks += 1
+            try:
+                article.attach.votes.add(webuser)#点赞
+            except:
+                msg="点赞失败"
+            article.attach.save()
         result = {
             "status": 0,
-            "msg": "点赞失败"
+            "msg": msg
         }
         return HttpResponse(json.dumps(result))
-    if type=='accept/':
+    if type=='accept/':#采纳回复
         article.attach.isPicked=1
         article.parentID.attach.isFinish=1
         article.parentID.attach.save()
@@ -391,7 +445,7 @@ def jieda(request,type):
             "msg": "采纳成功"
         }
         return HttpResponse(json.dumps(result))
-    if type=='delete/':
+    if type=='delete/':#删除回复
         article.delete()
         article.parentID.attach.replys-=1
         article.parentID.attach.save()
@@ -400,7 +454,7 @@ def jieda(request,type):
             "msg": "删除成功"
         }
         return HttpResponse(json.dumps(result))
-    if type == 'getDa/':
+    if type == 'getDa/':#获取回复内容
         rows={}
         rows["content"]=article.content
         result = {
@@ -409,7 +463,7 @@ def jieda(request,type):
             "rows":rows
         }
         return HttpResponse(json.dumps(result))
-    if type == 'updateDa/':
+    if type == 'updateDa/':#更新回复
         article.content=request.POST['content']
         article.save()
         result = {
@@ -417,39 +471,30 @@ def jieda(request,type):
             "msg": "更新回复"
         }
         return HttpResponse(json.dumps(result))
-    if type =='set/':
-        rank=request.POST['rank']
+    if type =='set/':#文章设置
+        rank=request.POST['rank']#
         field=request.POST['field']
-        print(field)
-        print(rank)
-
-        if field == 'stick':
-            if rank == '1':
-                print("置顶")
+        if field == 'stick':#置顶
+            if rank == '1':#置顶
                 article.attach.isTop = 1
             else:
-                print("取消置顶")
                 article.attach.isTop = 0
-        if field == 'status':
-            if rank == '1':
-                print("加精")
+        if field == 'status':#加精
+            if rank == '1':#加精
                 article.attach.isPicked=1
             else:
-                print("取消加精")
                 article.attach.isPicked=0
         article.attach.save()
         result = {
             "status": 0,
         }
         return HttpResponse(json.dumps(result))
-def jiedelete(request):
-    print("删除文章")
+def jiedelete(request):#删除文章
     aid=request.POST['id']
-    print(aid)
     webuser = Webuser.objects.get(user_id=request.user.id)
-    articel=Article.objects.get(aid=aid)
+    article=Article.objects.get(aid=aid)
     try:
-        articel.delete()
+        article.delete()
         msg=""
     except:
         msg="删除失败"
@@ -457,4 +502,16 @@ def jiedelete(request):
         "status": 0,
         "msg": msg
     }
+    return HttpResponse(json.dumps(result))
+def message(request,type):#消息处理
+    result={}
+    if type=='nums/':#消息数
+        result={
+            'status':0,
+            'count':2
+        }
+    if type=='read/':#读取消息
+        result = {
+            'status': 0,
+        }
     return HttpResponse(json.dumps(result))
